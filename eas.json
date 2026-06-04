@@ -1,0 +1,56 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "autoIncrement": false,
+      "cache": {
+        "disabled": true
+      },
+      "env": {
+        "EAS_BUILD_RUNNER": "15",
+        "SENTRY_ORG": "maverick-investments-llc",
+        "SENTRY_PROJECT": "apple-ios"
+      },
+      "ios": {
+        "distribution": "store",
+        "buildConfiguration": "Release",
+        "simulator": false,
+        "image": "macos-sequoia-15.6-xcode-26.2"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "distribution": "store"
+      },
+      "node": "20.20.2"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "dkoravos@gmail.com",
+        "ascAppId": "6767946213",
+        "appleTeamId": "AH86J8H6P7"
+      }
+    }
+  }
+}
