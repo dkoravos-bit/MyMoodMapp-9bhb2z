@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.dkoravos.mymoodmapp",
-      "buildNumber": "46",
+      "buildNumber": "47",
       "jsEngine": "hermes",
       "infoPlist": {
         "UIBackgroundModes": [
@@ -28,7 +28,8 @@
         "NSCameraUsageDescription": "MyMoodMapp uses the camera to capture photos for your mood journal entries.",
         "NSPhotoLibraryUsageDescription": "MyMoodMapp can save your mood art to your photo library.",
         "NSContactsUsageDescription": "MyMoodMapp uses your contacts to invite friends as Accountability Buddies to help you stay consistent with your daily mood logging.",
-        "NSCalendarsUsageDescription": "MyMoodMapp can add mood check-in reminders to your calendar to help you build a consistent daily logging habit."
+        "NSCalendarsUsageDescription": "MyMoodMapp can add mood check-in reminders to your calendar to help you build a consistent daily logging habit.",
+        "NSMotionUsageDescription": "MyMoodMapp uses motion data to detect activity patterns and correlate them with your mood scores."
       },
       "entitlements": {
         "com.apple.developer.healthkit": true,
