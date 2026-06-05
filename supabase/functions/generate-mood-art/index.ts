@@ -1,9 +1,8 @@
 /**
- * generate-mood-art — AI image generation via OnSpace AI (Gemini Flash Image)
+ * generate-mood-art — Free AI image generation via Pollinations.ai
  *
- * Uses OnSpace AI image generation (google/gemini-2.5-flash-image) for
- * high-quality mood visualizations. Falls back to the previous Pollinations
- * approach if OnSpace AI is unavailable.
+ * Uses Pollinations.ai (flux-schnell) — completely free, no API key required.
+ * Zero paid AI dependencies.
  *
  * Art types:
  *   "now"       → radial energy portrait for current emotional state
@@ -135,88 +134,43 @@ serve(async (req) => {
       ].filter(Boolean).join(' ');
     }
 
-    // ── Try OnSpace AI first ──────────────────────────────────────────────────
-    const onspaceApiKey = Deno.env.get('ONSPACE_AI_API_KEY');
-    const onspaceBaseUrl = Deno.env.get('ONSPACE_AI_BASE_URL');
+    // ── Pollinations.ai — free, no API key ──────────────────────────────────
+    const seed = (seedOverride != null ? Number(seedOverride) : null) ?? Math.floor(Math.random() * 999999);
+    const w = aspectRatio === '16:9' ? 640 : 512;
+    const h = aspectRatio === '16:9' ? 360 : 512;
 
     let imageBase64: string | null = null;
-    let imageContentType = 'image/png';
+    let imageContentType = 'image/jpeg';
 
-    if (onspaceApiKey && onspaceBaseUrl) {
-      console.log(`[mood-art] Generating ${artType} via OnSpace AI (gemini-2.5-flash-image) aspect=${aspectRatio}`);
+    console.log(`[mood-art] Generating ${artType} via Pollinations.ai aspect=${aspectRatio} seed=${seed}`);
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise(r => setTimeout(r, 10000 * attempt));
       try {
-        const aiResp = await fetch(`${onspaceBaseUrl}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${onspaceApiKey}`,
-          },
-          body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image',
-            modalities: ['image', 'text'],
-            messages: [{ role: 'user', content: prompt }],
-            image_config: { aspect_ratio: aspectRatio, image_size: '1K' },
-          }),
-          signal: AbortSignal.timeout(90000),
-        });
-
-        if (aiResp.ok) {
-          const aiData = await aiResp.json();
-          const imgUrl = aiData?.choices?.[0]?.message?.images?.[0]?.image_url?.url as string | undefined;
-          if (imgUrl && imgUrl.startsWith('data:')) {
-            // Extract base64 and content type from data URL
-            const match = imgUrl.match(/^data:([^;]+);base64,(.+)$/);
-            if (match) {
-              imageContentType = match[1];
-              imageBase64 = match[2];
-              console.log(`[mood-art] OnSpace AI success, content-type=${imageContentType}`);
-            }
+        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&model=flux&nologo=true&enhance=false&seed=${seed + attempt}&safe=false`;
+        const imgResp = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(90000) });
+        if (imgResp.ok) {
+          const buf = await imgResp.arrayBuffer();
+          if (buf.byteLength > 1000) {
+            const uint8 = new Uint8Array(buf);
+            let binary = '';
+            for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
+            imageBase64 = btoa(binary);
+            imageContentType = imgResp.headers.get('content-type') ?? 'image/jpeg';
+            console.log(`[mood-art] Pollinations success (attempt ${attempt + 1}), bytes=${buf.byteLength}`);
+            break;
           }
         } else {
-          const errText = await aiResp.text().catch(() => '');
-          console.warn(`[mood-art] OnSpace AI HTTP ${aiResp.status}: ${errText}`);
+          console.warn(`[mood-art] Pollinations HTTP ${imgResp.status} (attempt ${attempt + 1})`);
         }
-      } catch (aiErr) {
-        console.warn('[mood-art] OnSpace AI error:', aiErr);
-      }
-    }
-
-    // ── Fallback: Pollinations.ai ─────────────────────────────────────────────
-    if (!imageBase64) {
-      console.log(`[mood-art] OnSpace AI unavailable, falling back to Pollinations`);
-      const seed = (seedOverride != null ? Number(seedOverride) : null) ?? Math.floor(Math.random() * 999999);
-      const w = aspectRatio === '16:9' ? 640 : 512;
-      const h = aspectRatio === '16:9' ? 360 : 512;
-      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&model=flux-schnell&nologo=true&enhance=false&seed=${seed}&safe=false`;
-
-      for (let attempt = 0; attempt < 2; attempt++) {
-        if (attempt > 0) await new Promise(r => setTimeout(r, 8000));
-        try {
-          const imgResp = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(55000) });
-          if (imgResp.ok) {
-            const buf = await imgResp.arrayBuffer();
-            if (buf.byteLength > 1000) {
-              // Convert arraybuffer to base64
-              const uint8 = new Uint8Array(buf);
-              let binary = '';
-              for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
-              imageBase64 = btoa(binary);
-              imageContentType = imgResp.headers.get('content-type') ?? 'image/jpeg';
-              console.log(`[mood-art] Pollinations fallback success (attempt ${attempt + 1})`);
-              break;
-            }
-          } else {
-            console.warn(`[mood-art] Pollinations HTTP ${imgResp.status}`);
-          }
-        } catch (pe) {
-          console.warn(`[mood-art] Pollinations attempt ${attempt + 1} failed:`, pe);
-        }
+      } catch (pe) {
+        console.warn(`[mood-art] Pollinations attempt ${attempt + 1} failed:`, pe);
       }
     }
 
     if (!imageBase64) {
       return new Response(
-        JSON.stringify({ error: 'Image generation failed: all providers exhausted' }),
+        JSON.stringify({ error: 'Image generation failed after 3 attempts' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -228,10 +182,8 @@ serve(async (req) => {
     );
 
     const ext = imageContentType.includes('png') ? 'png' : 'jpg';
-    const seed2 = (seedOverride != null ? Number(seedOverride) : null) ?? Math.floor(Math.random() * 999999);
-    const fileName = `mood-art/${artType}-${Date.now()}-${seed2}.${ext}`;
+    const fileName = `mood-art/${artType}-${Date.now()}-${seed}.${ext}`;
 
-    // Decode base64 back to binary for upload
     const binaryStr = atob(imageBase64);
     const imageBytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) imageBytes[i] = binaryStr.charCodeAt(i);
