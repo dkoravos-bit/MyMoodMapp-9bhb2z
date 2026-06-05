@@ -2590,7 +2590,7 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
               </Text>
               <Text style={{ fontSize: 10, color: C.textMuted, includeFontPadding: false } as any}>
                 Forecast: {Math.round(selSlot.score ?? baseline)} · Δ {Math.round((selSlot.score ?? baseline) - baseline) >= 0 ? '+' : ''}{Math.round((selSlot.score ?? baseline) - baseline)} vs baseline
-              </Text>
+            </Text>
             </View>
             <Pressable onPress={() => setSelIdx(null)} hitSlop={10}>
               <MaterialIcons name="close" size={16} color={C.textMuted} />
@@ -2614,7 +2614,7 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
                       borderWidth: 1, borderColor: C.border,
                     }}>
                       <Text style={{ fontSize: 14, fontWeight: '900', color: item.color, includeFontPadding: false } as any}>{item.val}</Text>
-                      <Text style={{ fontSize: 8, color: C.textMuted, textAlign: 'center', fontWeight: '600', includeFontPadding: false } as any}>{item.label}</Text>
+                      <Text style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', fontWeight: '600', includeFontPadding: false } as any}>{item.label}</Text>
                     </View>
                   ))}
                 </View>
@@ -2622,7 +2622,7 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
                 {/* Top tags */}
                 {selHistory.topTags.length > 0 ? (
                   <View style={{ gap: 6 }}>
-                    <Text style={{ fontSize: 11, fontWeight: '700', color: C.textPrimary, includeFontPadding: false } as any}>Common context at this time</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '700', color: C.textPrimary, includeFontPadding: false } as any}>Common context at this time</Text>
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                       {selHistory.topTags.map(t => {
                         const tag = CONTEXT_TAGS.find(x => x.id === t.id);
@@ -2636,8 +2636,8 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
                           }}>
                             <Text style={{ fontSize: 12 }}>{tag.emoji}</Text>
                             <View>
-                              <Text style={{ fontSize: 10, fontWeight: '700', color: C.textPrimary, includeFontPadding: false } as any}>{tag.label}</Text>
-                              <Text style={{ fontSize: 8, color: C.textMuted, includeFontPadding: false } as any}>{t.count}x · avg {t.avg}</Text>
+                              <Text style={{ fontSize: 13, fontWeight: '700', color: C.textPrimary, includeFontPadding: false } as any}>{tag.label}</Text>
+                              <Text style={{ fontSize: 11, color: C.textMuted, includeFontPadding: false } as any}>{t.count}x · avg {t.avg}</Text>
                             </View>
                           </View>
                         );
@@ -2648,7 +2648,7 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
 
                 {/* Recent logs */}
                 <View style={{ gap: 6 }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: C.textPrimary, includeFontPadding: false } as any}>Recent {selSlot.tod} logs</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: C.textPrimary, includeFontPadding: false } as any}>Recent {selSlot.tod} logs</Text>
                   {selHistory.recent.map(e => {
                     const tag = CONTEXT_TAGS.find(x => x.id === e.primaryTag);
                     const ec = getScoreColor(e.score);
@@ -2660,17 +2660,17 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
                       }}>
                         <Text style={{ fontSize: 15, fontWeight: '900', color: ec, width: 26, textAlign: 'center', includeFontPadding: false } as any}>{e.score}</Text>
                         <View style={{ flex: 1, gap: 1 }}>
-                          <Text style={{ fontSize: 10, color: C.textMuted, includeFontPadding: false } as any}>{new Date(e.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
-                          {tag ? <Text style={{ fontSize: 10, fontWeight: '600', color: C.textPrimary, includeFontPadding: false } as any}>{tag.emoji} {tag.label}</Text> : null}
-                          {e.note ? <Text style={{ fontSize: 9, color: C.textMuted, includeFontPadding: false } as any} numberOfLines={1}>{e.note}</Text> : null}
+                          <Text style={{ fontSize: 13, color: C.textMuted, includeFontPadding: false } as any}>{new Date(e.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+                          {tag ? <Text style={{ fontSize: 13, fontWeight: '600', color: C.textPrimary, includeFontPadding: false } as any}>{tag.emoji} {tag.label}</Text> : null}
+                          {e.note ? <Text style={{ fontSize: 12, color: C.textMuted, includeFontPadding: false } as any} numberOfLines={1}>{e.note}</Text> : null}
                         </View>
                         <View style={{ alignItems: 'flex-end', gap: 2 }}>
-                          <Text style={{ fontSize: 9, color: C.textMuted, includeFontPadding: false } as any}>{getScoreLabel(e.score)}</Text>
+                          <Text style={{ fontSize: 12, color: C.textMuted, includeFontPadding: false } as any}>{getScoreLabel(e.score)}</Text>
                           {(() => {
                             const delta = e.score - Math.round(selHistory!.avg);
                             const isP = delta >= 0;
                             return (
-                              <Text style={{ fontSize: 9, fontWeight: '700', color: isP ? '#4ADE80' : '#FF6B6B', includeFontPadding: false } as any}>
+                              <Text style={{ fontSize: 12, fontWeight: '700', color: isP ? '#4ADE80' : '#FF6B6B', includeFontPadding: false } as any}>
                                 {isP ? '+' : ''}{delta} vs {selSlot.tod} avg
                               </Text>
                             );
@@ -2688,7 +2688,7 @@ function ForecastSlots({ slots, entries, baseline, timePat, fitnessData }: {
                   borderWidth: 1, borderColor: C.border,
                 }}>
                   <MaterialIcons name="lightbulb-outline" size={14} color={Colors.primary} style={{ marginTop: 1 }} />
-                  <Text style={{ flex: 1, fontSize: 11, color: C.textSecondary, lineHeight: 16, includeFontPadding: false } as any}>
+                  <Text style={{ flex: 1, fontSize: 14, color: C.textSecondary, lineHeight: 21, includeFontPadding: false } as any}>
                     {(() => {
                       const histAvg = selHistory.avg;
                       const fcast   = Math.round(selSlot.score ?? baseline);
