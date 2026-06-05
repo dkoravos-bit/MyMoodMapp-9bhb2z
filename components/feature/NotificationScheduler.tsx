@@ -1,3 +1,4 @@
+
 /**
  * NotificationScheduler component
  * Full UI for managing check-in reminders and weekly recap notification.
@@ -649,73 +650,6 @@ export function NotificationScheduler({ onSettingsChange }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* ── Apple Watch info card ── */}
-      {Platform.OS === 'ios' ? (
-        <View style={styles.watchCard}>
-          <View style={styles.watchIconWrap}>
-            <MaterialIcons name="watch" size={20} color={C.secondary} />
-          </View>
-          <View style={{ flex: 1, gap: 6 }}>
-            <Text style={styles.watchTitle}>Log directly from Apple Watch</Text>
-            <Text style={styles.watchBody}>
-              Every reminder shows action buttons on your Watch long-look and iPhone lock screen.
-              {' '}<Text style={{ fontWeight: '700', color: C.warning }}>Tip:</Text>{' '}the Watch shows the notification when your iPhone screen is off — lock your phone first, then wait for the reminder.{' '}On Watch Series 9/Ultra 2, <Text style={{ fontWeight: '700' }}>Double Tap</Text> logs 😊 Great instantly.
-            </Text>
-            <View style={{ gap: 3 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13 }}>😊</Text>
-                <Text style={[styles.watchBody, { flex: 1 }]}>
-                  <Text style={{ fontWeight: '700', color: C.success }}>Great</Text>
-                  {' — '}
-                  saves a high-energy entry instantly, no phone needed
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13 }}>😐</Text>
-                <Text style={[styles.watchBody, { flex: 1 }]}>
-                  <Text style={{ fontWeight: '700', color: C.warning }}>Okay</Text>
-                  {' — '}
-                  saves a neutral entry
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13 }}>😔</Text>
-                <Text style={[styles.watchBody, { flex: 1 }]}>
-                  <Text style={{ fontWeight: '700', color: C.error }}>Low</Text>
-                  {' — '}
-                  saves a low-energy entry
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13 }}>📝</Text>
-                <Text style={[styles.watchBody, { flex: 1 }]}>
-                  <Text style={{ fontWeight: '700', color: C.primary }}>Full Log</Text>
-                  {' — '}
-                  opens the detailed check-in screen on your phone
-                </Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13 }}>⏰</Text>
-                <Text style={[styles.watchBody, { flex: 1 }]}>
-                  <Text style={{ fontWeight: '700', color: C.secondary }}>Snooze 1h</Text>
-                  {' — '}
-                  re-fires the reminder 60 minutes later
-                </Text>
-              </View>
-            </View>
-            <Text style={[styles.watchBody, { marginTop: 2, opacity: 0.7 }]}>
-              A confirmation notification is sent after every quick log so you know it saved.
-            </Text>
-            <View style={{ marginTop: 4, backgroundColor: C.warning + '18', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: C.warning + '40' }}>
-              <Text style={[styles.watchBody, { color: C.warning, fontWeight: '700' }]}>⚠️ Watch setup checklist:</Text>
-              <Text style={[styles.watchBody, { marginTop: 3 }]}>1. Open Watch app on iPhone → Notifications → find this app → enable "Mirror my iPhone"</Text>
-              <Text style={[styles.watchBody, { marginTop: 2 }]}>2. When testing: tap the button below, then <Text style={{ fontWeight: '700', color: C.warning }}>immediately lock your iPhone</Text> — the Watch only receives it when the iPhone screen is OFF</Text>
-              <Text style={[styles.watchBody, { marginTop: 2 }]}>3. On Watch, long-press (force-press) the notification to reveal action buttons</Text>
-            </View>
-          </View>
-        </View>
-      ) : null}
-
       {/* ── Test notification button ── */}
       {Platform.OS !== 'web' ? (
         <Pressable
@@ -738,8 +672,18 @@ export function NotificationScheduler({ onSettingsChange }: Props) {
           }]}
         >
           {firingTest
-            ? <><ActivityIndicator size="small" color={testCountdown > 0 ? C.primary : C.background} /><Text style={{ fontSize: 14, fontWeight: '700', color: testCountdown > 0 ? C.primary : '#08091A', includeFontPadding: false }}>{testCountdown > 0 ? `🔒 Lock your phone now! (${testCountdown}s)` : 'Sending…'}</Text></>
-            : <><MaterialIcons name="notifications-active" size={18} color="#08091A" /><Text style={{ fontSize: 14, fontWeight: '700', color: '#08091A', includeFontPadding: false }}>Send test notification</Text></>}
+            ? (<>
+                <ActivityIndicator size="small" color={testCountdown > 0 ? C.primary : C.background} />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: testCountdown > 0 ? C.primary : '#08091A', includeFontPadding: false }}>
+                  {testCountdown > 0 ? `🔒 Lock your phone now! (${testCountdown}s)` : 'Sending…'}
+                </Text>
+              </>)
+            : (<>
+                <MaterialIcons name="notifications-active" size={18} color="#08091A" />
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#08091A', includeFontPadding: false }}>
+                  Send test notification
+                </Text>
+              </>)}
         </Pressable>
       ) : null}
 
@@ -898,6 +842,48 @@ export function NotificationScheduler({ onSettingsChange }: Props) {
           <Text style={styles.repeatNote}>
             <MaterialIcons name="loop" size={11} color={C.textMuted} /> Repeats daily
           </Text>
+        </View>
+      ) : null}
+
+      {/* ── Apple Watch info card — shown AFTER reminders ── */}
+      {Platform.OS === 'ios' ? (
+        <View style={[styles.watchCard, { marginTop: Spacing.lg, marginBottom: Spacing.lg }]}>
+          <View style={styles.watchIconWrap}>
+            <MaterialIcons name="watch" size={20} color={C.secondary} />
+          </View>
+          <View style={{ flex: 1, gap: 6 }}>
+            <Text style={styles.watchTitle}>Log Directly from Apple Watch</Text>
+            <Text style={styles.watchBody}>
+              Every reminder shows action buttons on your Watch long-look and iPhone lock screen.
+              {' '}<Text style={{ fontWeight: '700', color: C.warning }}>Tip:</Text>{' '}lock your phone first, then wait for the reminder — the Watch only shows it when your iPhone screen is off.{' '}On Watch Series 9/Ultra 2, <Text style={{ fontWeight: '700' }}>Double Tap</Text> logs 😊 Great instantly.
+            </Text>
+            <View style={{ gap: 3 }}>
+              {[
+                { emoji: '😊', label: 'Great', desc: 'saves a high-energy entry instantly, no phone needed', color: C.success },
+                { emoji: '😐', label: 'Okay', desc: 'saves a neutral entry', color: C.warning },
+                { emoji: '😔', label: 'Low', desc: 'saves a low-energy entry', color: C.error },
+                { emoji: '📝', label: 'Full Log', desc: 'opens the detailed check-in screen on your phone', color: C.primary },
+                { emoji: '⏰', label: 'Snooze 1h', desc: 're-fires the reminder 60 minutes later', color: C.secondary },
+              ].map((item, i) => (
+                <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 13 }}>{item.emoji}</Text>
+                  <Text style={[styles.watchBody, { flex: 1 }]}>
+                    <Text style={{ fontWeight: '700', color: item.color }}>{item.label}</Text>
+                    {' — '}{item.desc}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            <Text style={[styles.watchBody, { marginTop: 2, opacity: 0.7 }]}>
+              A confirmation notification is sent after every quick log so you know it saved.
+            </Text>
+            <View style={{ marginTop: 4, backgroundColor: C.warning + '18', borderRadius: 8, padding: 8, borderWidth: 1, borderColor: C.warning + '40' }}>
+              <Text style={[styles.watchBody, { color: C.warning, fontWeight: '700' }]}>{'Watch setup checklist:'}</Text>
+              <Text style={[styles.watchBody, { marginTop: 3 }]}>{'1. Watch app on iPhone → Notifications → find this app → enable Mirror my iPhone'}</Text>
+              <Text style={[styles.watchBody, { marginTop: 2 }]}>{'2. When testing: tap the button above, then '}<Text style={{ fontWeight: '700', color: C.warning }}>{'immediately lock your iPhone'}</Text>{' — the Watch only receives it when the iPhone screen is OFF'}</Text>
+              <Text style={[styles.watchBody, { marginTop: 2 }]}>{'3. On Watch, long-press (force-press) the notification to reveal action buttons'}</Text>
+            </View>
+          </View>
         </View>
       ) : null}
 

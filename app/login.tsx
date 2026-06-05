@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useAuth, useAlert } from '@/template';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadows, getGlass } from '@/constants/theme';
@@ -425,9 +426,14 @@ export default function LoginScreen() {
           {/* Header */}
           <View style={styles.heroSection}>
             <View style={styles.logoWrap}>
-              <MaterialIcons name="mood" size={36} color={Colors.primary} />
+              <Image
+                source={require('@/assets/moodprint-icon.png')}
+                style={{ width: 68, height: 68, borderRadius: 16 }}
+                contentFit="cover"
+                transition={200}
+              />
             </View>
-            <Text style={styles.appName}>MyMoodMap</Text>
+            <Text style={styles.appName}>MyMoodMapp</Text>
             <Text style={styles.tagline}>Track what moves you</Text>
           </View>
 
@@ -629,7 +635,7 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.background },
   scroll: { padding: Spacing.lg, paddingBottom: Spacing['3xl'] },
   heroSection: { alignItems: 'center', paddingVertical: Spacing.xl, gap: Spacing.sm },
-  logoWrap: { width: 72, height: 72, borderRadius: 36, backgroundColor: Colors.primarySoft, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: Colors.primary + '40' },
+  logoWrap: { width: 72, height: 72, borderRadius: 16, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   appName: { fontSize: Typography.fontSizes['2xl'], fontWeight: '900', color: Colors.textPrimary, includeFontPadding: false },
   tagline: { fontSize: Typography.fontSizes.sm, color: Colors.textMuted, includeFontPadding: false },
   modeTabs: { flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: Radius.lg, padding: 4, marginBottom: Spacing.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
