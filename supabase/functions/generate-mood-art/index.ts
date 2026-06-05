@@ -6,10 +6,10 @@
  * Fallback: Pollinations.ai (flux, free, no key)
  *
  * Art types:
- *   "now"       → radial energy portrait for current emotional state
+ *   "now"       → sacred geometry / parallel universe portal for current emotional state
  *   "landscape" → emotional terrain panorama (week/month views)
  *   "forecast"  → atmospheric sky scene for 48h prediction
- *   "print"     → abstract soul signature / mood fingerprint
+ *   "print"     → eccentric alien mood fingerprint / soul signature
  */
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -166,23 +166,41 @@ serve(async (req) => {
     }
 
     else if (artType === 'print') {
+      // ── ECCENTRIC alien soul-signature fingerprint ───────────────────────
       aspectRatio = '1:1';
-      const ridgePattern = volatility === 'stable'
-        ? 'perfect loop whorl fingerprint — tight precise concentric ridge lines, mathematically symmetrical'
+
+      const ridgeStyle = volatility === 'stable'
+        ? 'perfectly repeating crystalline mandala ridges radiating from a central singularity, each ridge line a luminous thread of pure geometry'
         : volatility === 'variable'
-          ? 'arch-loop composite fingerprint — bifurcating organic ridges with natural forks and splits'
-          : 'fragmented delta fingerprint — shattered ridge endings, broken whorls, crystalline fracture points';
+          ? 'bifurcating fractal vine ridges that split and regrow like alien mycelium, organic yet mathematical, every fork a decision point'
+          : 'shattered obsidian ridge fragments suspended mid-explosion, crystalline shards frozen in time, quantum decoherence made visible';
+
+      const ridgeTexture = dimEnergy > 60
+        ? 'ridges pulse with bioluminescent inner fire, veins of molten neon light running through each line'
+        : 'ridges glow with cold spectral phosphorescence, each groove filled with deep cosmic shadow';
+
+      const ridgeDetail = dimMind > 60
+        ? 'micro-engravings of sacred symbols — vesica piscis, triskelion, and metatron nodes — carved into the ridge faces at nanoscale'
+        : 'ridges dissolve at their edges into quantum probability clouds, uncertain and alive';
+
+      const coreVortex = s > 65
+        ? 'central whorl opens into a blazing interdimensional portal — rings of light expanding outward from a white-hot singularity'
+        : s > 40
+          ? 'central whorl is a slowly rotating eye of calm — deep violet and cobalt layers coiling inward to a glowing amber nucleus'
+          : 'central whorl collapses inward like a dark star — dense gravitational rings pulling all light toward a hollow black center';
+
       prompt = [
-        `Extreme macro forensic fingerprint scan under microscope, ultra-detailed ridge and valley pattern, dark background.`,
-        `Ridge color: ${palette(s)}.`,
-        `Ridge pattern: ${ridgePattern}.`,
-        dimBody > 60 ? 'Thick bold raised ridges, deep dark valleys between them.' : 'Fine delicate ridge lines, subtle valley depth.',
-        dimMind > 60 ? 'Crystal-sharp ridge definition, perfectly crisp edges, high contrast.' : 'Soft slightly blurred ridge boundaries, lower contrast.',
-        dimEnergy > 60 ? 'Vivid glowing ridge colors with bioluminescent inner light.' : 'Muted desaturated ridge colors, faded washed-out appearance.',
-        trend === 'improving' ? 'Bright light radiates outward from the central core whorl.' : trend === 'declining' ? 'Ridge colors darken and converge toward the center.' : 'Even ridge illumination, balanced radial symmetry.',
-        dominantTag ? `Ridge texture subtly influenced by "${dominantTag}" emotional context.` : '',
-        `Pattern encodes ${entryCount ?? 30} mood data points.`,
-        'Forensic fingerprint photography, dark background, ridges highlighted with glowing bioluminescent color. No text, no labels, no UI.',
+        `Hyper-surrealist macro fingerprint as cosmic artifact. Not a human fingerprint — a soul-signature from another dimension.`,
+        `Pure black void background. ${palette(s)} color spectrum suffusing the ridge lines.`,
+        `Ridge architecture: ${ridgeStyle}.`,
+        `${ridgeTexture}.`,
+        `${ridgeDetail}.`,
+        `Core: ${coreVortex}.`,
+        dimBody > 60 ? 'Ridge walls are thick and monolithic, like ancient standing stones arranged in concentric rings.' : 'Ridge walls are wafer-thin, delicate as insect wings, trembling at the edge of visibility.',
+        trend === 'improving' ? 'Spiraling ridges uncoil outward in an expanding golden ratio pattern, momentum made physical.' : trend === 'declining' ? 'Ridges contract inward in tightening death-spiral loops, gravity pulling everything toward center.' : 'Ridges hold perfect equilibrium — neither expanding nor contracting, suspended in sacred stillness.',
+        dominantTag ? `The entire pattern resonates with the emotional frequency of "${dominantTag}" — visible as a subtle harmonic interference pattern across every ridge.` : '',
+        `${entryCount ?? 30} data points encoded as ${entryCount ?? 30} distinct ridge micro-variations, each one a day crystallized.`,
+        'Extreme macro photography aesthetic, infinite depth of field, studio void lighting. Otherworldly, unsettling beauty. No text, no labels, no UI elements.',
       ].filter(Boolean).join(' ');
     }
 
@@ -206,20 +224,52 @@ serve(async (req) => {
     }
 
     else {
-      // 'now' — energy field portrait
+      // ── 'now' — sacred geometry / parallel universe portal ───────────────
       aspectRatio = '1:1';
+
+      // Core geometry shifts with score
+      const geometryCore = s > 65
+        ? 'Sri Yantra radiating from the center — nine interlocking triangles forming a star gateway, each triangle edge glowing with plasma light, the bindu point a blinding white singularity'
+        : s > 40
+          ? 'Metatrons Cube at the center — all five Platonic solids nested inside one another, slowly rotating in different axes, edges lit with bioluminescent light'
+          : 'Flower of Life in deep contraction — overlapping circles pulling inward, petals of the mandala dimming toward a dark central void, sacred geometry under strain';
+
+      // Outer field shifts with mind dimension
+      const outerField = dimMind > 60
+        ? 'outer ring: infinite Mandelbrot fractal zoom — recursive self-similar patterns expanding to every edge, each iteration revealing new universes nested inside the previous'
+        : 'outer ring: hyperbolic tessellation tiles warping outward like an Escher universe — identical sacred shapes that never repeat, curving to infinity';
+
+      // Energy layer shifts with energy dimension
+      const energyLayer = dimEnergy > 60
+        ? 'mid-layer: lightning plasma arcs trace the golden ratio spiral from the center outward, Fibonacci geometry made of pure electricity'
+        : 'mid-layer: slow Aurora Borealis ribbons fold through the geometric structure like veils between dimensions, soft and diffuse';
+
+      // Portal / multiverse element shifts with volatility
+      const portalElement = volatility === 'stable'
+        ? 'Four equidistant wormhole apertures at cardinal points — perfect circular tunnels receding into parallel universes, each showing a different colored cosmos at the far end'
+        : volatility === 'variable'
+          ? 'Asymmetric quantum foam of micro-wormholes scattered throughout — dozens of tiny portals of different sizes, each a pinhole into another timeline'
+          : 'A fracturing dimensional rift bisecting the composition — spacetime tearing at the seams, revealing raw prismatic light from the void between universes';
+
+      // Trend color diffusion
+      const trendAtmosphere = trend === 'improving'
+        ? 'The entire composition breathes outward — geometry expanding, portals opening wider, light intensifying toward the edges'
+        : trend === 'declining'
+          ? 'The entire composition contracts inward — geometry tightening, portals narrowing, energy drawing back toward the center point'
+          : 'The composition holds perfect dynamic tension — geometry neither expanding nor collapsing, a sacred equilibrium';
+
       prompt = [
-        `Abstract energy field visualization, living emotional compass, present moment. Digital art.`,
-        `Wellness score ${s}/100: ${sceneMood(s)}.`,
-        `Colors: ${palette(s)}.`,
-        `Four energy quadrants:`,
-        `North/Mind ${dimMind}%: ${dimMind > 60 ? 'electric blue plasma field' : 'soft cool mist'}.`,
-        `East/Energy ${dimEnergy}%: ${dimEnergy > 60 ? 'vivid green lightning arcs' : 'gentle ember glow'}.`,
-        `South/Body ${dimBody}%: ${dimBody > 60 ? 'warm amber force field' : 'cool lavender haze'}.`,
-        `West/Focus: ${dimEnergy > 60 && dimMind > 60 ? 'sharp orange geometric rays' : 'soft diffuse light waves'}.`,
-        `Central core: ${s > 65 ? 'brilliant pulsing radiant sphere' : s > 40 ? 'steady warm glow orb' : 'deep blue gathering ember'}.`,
-        volatility === 'stable' ? 'Shape is perfectly circular and symmetrical.' : volatility === 'variable' ? 'Shape is organically asymmetric.' : 'Shape is dynamically fractured and faceted.',
-        'Cosmic energy art, bioluminescence, plasma physics. No text, no UI.',
+        `Sacred geometry mystical portal, parallel universe gateway, quantum cosmology art. Ultra-detailed digital sacred art.`,
+        `Mood ${s}/100: ${sceneMood(s)}. Color palette: ${palette(s)}, deep cosmic black void background.`,
+        `Central structure: ${geometryCore}.`,
+        `${outerField}.`,
+        `${energyLayer}.`,
+        `${portalElement}.`,
+        `${trendAtmosphere}.`,
+        dimBody > 60 ? 'Body dimension manifests as thick golden torus rings encircling the central geometry, grounded electromagnetic presence.' : 'Body dimension manifests as wispy ethereal rings, barely-there luminous filaments orbiting the core.',
+        cyclePhase === 'follicular' ? 'Crescent moon phase geometry woven into the outer mandala ring.' : cyclePhase === 'ovulation' ? 'Full circle completeness geometry — every form at maximum expansion and radiance.' : cyclePhase === 'luteal' ? 'Waning spiral geometry — forms beginning their inward sacred journey.' : cyclePhase === 'menstrual' ? 'Dark moon void geometry — stillness, the pause before cosmic rebirth.' : '',
+        dominantTag ? `The dominant emotional frequency of "${dominantTag}" resonates as a specific harmonic interference pattern visible in the geometry.` : '',
+        'Hyper-detailed, 8K quality render, mystical sacred art aesthetic. No text, no symbols with text meaning, no UI, no people.',
       ].filter(Boolean).join(' ');
     }
 
