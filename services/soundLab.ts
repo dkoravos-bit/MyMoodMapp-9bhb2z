@@ -346,12 +346,12 @@ export function getCdnUrl(soundId: string): string | null {
 // NATIVE PLAYER (expo-audio)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Crossfade duration in seconds — long enough to be inaudible, short enough
-// to not require too much look-ahead buffering.
-const NATIVE_XFADE_SECS = 3.0;
-// How far before the end of the track we trigger the crossfade.
-// Must be > NATIVE_XFADE_SECS to give the second player time to load.
-const NATIVE_XFADE_LOOKAHEAD_SECS = NATIVE_XFADE_SECS + 0.8;
+// Equal-power crossfade duration. 5 s is long enough for the ear to fully
+// lose track of the loop boundary on ambient/nature CDN tracks.
+const NATIVE_XFADE_SECS = 5.0;
+// Trigger crossfade this many seconds before the track ends.
+// Extra 2 s margin gives the second player time to load & buffer from CDN.
+const NATIVE_XFADE_LOOKAHEAD_SECS = NATIVE_XFADE_SECS + 2.0;
 
 interface XfadeState {
   /** The currently audible player (fading out or at full volume) */
@@ -436,27 +436,40 @@ async function _makeCrossfadePlayer(
 }
 
 /**
- * Ramp `player.volume` from `from` to `to` over `durationMs` ms.
- * Returns the interval id so the caller can cancel it if needed.
+ * Equal-power crossfade ramp using sine/cosine curves.
+ * - direction 'in'  → sin curve  (0 → targetVol): perceived loudness rises smoothly
+ * - direction 'out' → cos curve  (from → 0):      perceived loudness falls smoothly
+ * - direction 'linear' → classic linear (for UI sliders)
+ *
+ * Sin²+Cos²=1 so the combined power of both players is constant throughout
+ * the crossfade — the transition is completely inaudible.
  */
 function _rampVolume(
   player: any,
   from: number,
   to: number,
   durationMs: number,
+  direction: 'in' | 'out' | 'linear' = 'linear',
 ): ReturnType<typeof setInterval> {
-  const STEPS = 30;
-  const stepMs = durationMs / STEPS;
-  const delta = (to - from) / STEPS;
+  const STEPS = 80; // more steps = butter-smooth (every ~62 ms at 5 s)
+  const stepMs = Math.max(10, durationMs / STEPS);
   let step = 0;
   try { player.volume = from; } catch {}
   const id = setInterval(() => {
     step++;
-    const next = from + delta * step;
+    const t = step / STEPS; // 0 → 1
+    let next: number;
+    if (direction === 'in') {
+      next = to * Math.sin(t * Math.PI * 0.5);
+    } else if (direction === 'out') {
+      next = from * Math.cos(t * Math.PI * 0.5);
+    } else {
+      next = from + (to - from) * t;
+    }
     try { player.volume = Math.max(0, Math.min(1, next)); } catch {}
     if (step >= STEPS) {
       clearInterval(id);
-      try { player.volume = to; } catch {}
+      try { player.volume = Math.max(0, Math.min(1, to)); } catch {}
       if (to === 0) { _destroyPlayer(player); }
     }
   }, stepMs) as ReturnType<typeof setInterval>;
@@ -489,10 +502,10 @@ function _scheduleNativeCrossfade(state: XfadeState, secsBeforeEnd: number): voi
 
       const xfadeMs = NATIVE_XFADE_SECS * 1000;
 
-      // Fade out active player
-      _rampVolume(state.active, state.targetVol, 0, xfadeMs);
-      // Fade in next player (this also becomes the new active)
-      _rampVolume(nextPlayer, 0, state.targetVol, xfadeMs);
+      // Equal-power crossfade: cosine fades out old, sine fades in new.
+      // Combined power stays constant → no perceived loudness dip at the loop point.
+      _rampVolume(state.active, state.targetVol, 0, xfadeMs, 'out');
+      _rampVolume(nextPlayer, 0, state.targetVol, xfadeMs, 'in');
 
       // Swap active/next after crossfade completes
       setTimeout(() => {
@@ -801,7 +814,7 @@ function hasWebAudio(): boolean {
   return typeof window !== 'undefined' && (!!(window as any).AudioContext || !!(window as any).webkitAudioContext);
 }
 
-const WEB_XFADE_S = 2.5;
+const WEB_XFADE_S = 5.0; // match native — longer crossfade = invisible loop boundary
 
 function _scheduleCdnSource(ctx: any, masterGain: any, startTime: number, targetVol: number): void {
   if (_cdnStopFlag || !_cdnAudioBuffer) return;
@@ -812,11 +825,21 @@ function _scheduleCdnSource(ctx: any, masterGain: any, startTime: number, target
   const src = ctx.createBufferSource();
   src.buffer = _cdnAudioBuffer;
   src.connect(srcGain);
+  // Equal-power crossfade via 256-point sine/cosine gain curves.
+  // This maintains constant perceived loudness across the loop boundary.
+  const _cLen = 256;
+  const _fadeIn = new Float32Array(_cLen);
+  const _fadeOut = new Float32Array(_cLen);
+  for (let _ci = 0; _ci < _cLen; _ci++) {
+    const _t = _ci / (_cLen - 1);
+    _fadeIn[_ci]  = targetVol * Math.sin(_t * Math.PI * 0.5);
+    _fadeOut[_ci] = targetVol * Math.cos(_t * Math.PI * 0.5);
+  }
   srcGain.gain.setValueAtTime(0, startTime);
-  srcGain.gain.linearRampToValueAtTime(targetVol, startTime + WEB_XFADE_S);
+  srcGain.gain.setValueCurveAtTime(_fadeIn, startTime, WEB_XFADE_S);
   const fadeOutStart = startTime + duration - WEB_XFADE_S;
-  srcGain.gain.setValueAtTime(targetVol, fadeOutStart);
-  srcGain.gain.linearRampToValueAtTime(0, startTime + duration);
+  srcGain.gain.setValueAtTime(targetVol, Math.max(startTime + WEB_XFADE_S + 0.01, fadeOutStart));
+  srcGain.gain.setValueCurveAtTime(_fadeOut, Math.max(startTime + WEB_XFADE_S + 0.01, fadeOutStart), WEB_XFADE_S);
   src.start(startTime);
   const nextStart = startTime + duration - WEB_XFADE_S;
   const scheduleDelay = Math.max(0, (nextStart - ctx.currentTime - 0.5) * 1000);
