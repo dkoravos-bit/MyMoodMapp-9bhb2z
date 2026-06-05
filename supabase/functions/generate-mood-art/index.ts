@@ -32,6 +32,14 @@ const sceneMood = (s: number) => {
   return 'heavy, deep, searching for light';
 };
 
+// ── Cloudflare FLUX Schnell hard limit: 2048 chars ──────────────────────────
+function truncatePrompt(p: string, max = 2000): string {
+  if (p.length <= max) return p;
+  // Cut at the last space before the limit to avoid breaking words
+  const cut = p.lastIndexOf(' ', max);
+  return (cut > max * 0.8 ? p.slice(0, cut) : p.slice(0, max)).trimEnd();
+}
+
 // ── Cloudflare Workers AI — FLUX Schnell ─────────────────────────────────────
 async function generateViaCloudflare(
   prompt: string,
@@ -48,13 +56,15 @@ async function generateViaCloudflare(
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/black-forest-labs/flux-1-schnell`;
 
   try {
+    const safePrompt = truncatePrompt(prompt);
+    console.log(`[mood-art] Cloudflare prompt length: ${safePrompt.length} chars`);
     const resp = await fetch(url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ prompt, steps: 4, seed }),
+      body: JSON.stringify({ prompt: safePrompt, steps: 4, seed }),
       signal: AbortSignal.timeout(60000),
     });
 
@@ -176,6 +186,7 @@ serve(async (req) => {
       // Pure jet-black background. The arcs go edge-to-edge horizontally.
       aspectRatio = '1:1';
 
+      // ── Compact prompt designed to stay well under 2000 chars ──────────────
       // Crown arc color (topmost widest arcs)
       const crownColor = s >= 70
         ? 'blazing warm amber and gold — bright as sunrise, intensely luminous'
@@ -222,22 +233,17 @@ serve(async (req) => {
           : 'Every arc glows with equal intensity from crown to base — perfect luminous equilibrium.';
 
       prompt = [
-        `A glowing fingerprint portrait on a pure jet-black background. This is a LOOP-TYPE fingerprint: the ridges are wide sweeping horizontal arcs that stack from top to bottom — they do NOT form concentric circles. The arcs are widest at the top and gradually tighten as they descend, converging at a loop core point near the lower center.`,
-        `Each ridge is ${ridgeWeight}. Every arc is a smooth 3D rounded tube — like a glowing neon pipe — with a bright luminous inner core, a vivid neon-colored surface, and a wide soft outer glow halo bleeding into the black void around it.`,
-        `The arcs extend horizontally across the FULL WIDTH of the image — they begin and end beyond the frame edges, just like a real fingerprint scan.`,
-        `Color gradient flowing strictly TOP to BOTTOM: ${crownColor} for the topmost 4-5 arcs. ${upperMidColor} for the next band of arcs. ${lowerMidColor} for the lower arcs. ${baseColor} at the innermost loop curves.`,
+        `Glowing loop-type fingerprint portrait, pure jet-black background.`,
+        `Wide sweeping horizontal arc ridges stacking top to bottom, NOT concentric circles. Widest arcs at top, tightening to a loop core at the lower center.`,
+        `Each ridge: ${ridgeWeight}. Every arc is a smooth 3D neon tube — bright inner core, vivid color, wide outer glow halo against the black void.`,
+        `Arcs span full image width. Pure black negative space between each arc for maximum contrast.`,
+        `Color top-to-bottom: ${crownColor} (top arcs) → ${upperMidColor} (upper-mid) → ${lowerMidColor} (lower) → ${baseColor} (innermost curves).`,
         `${arcShape}.`,
         `${brightnessDist}`,
-        `The negative space between every arc is pure black — clean, dark, unlit — which makes each glowing tube arc pop with maximum contrast.`,
-        dimMind > 60
-          ? 'The arc curves are mathematically smooth and precise — no rough edges, perfectly rendered geometry.'
-          : 'The arc curves have a subtle organic softness — slightly imperfect, like a real fingerprint scan.',
-        s >= 65
-          ? 'Faint star-dust bokeh particles scattered in the deep black background — tiny cosmic sparkles that add depth without distracting from the arcs.'
-          : 'Pure black background, zero background elements — the arcs are the only source of light.',
-        dominantTag ? `The overall palette has a subtle emotional resonance with the feeling of "${dominantTag}".` : '',
-        'Ultra high resolution, 3D render quality, cinematic studio lighting, photorealistic glowing neon tubes. Centered portrait composition. Square format. Absolutely no text, no numbers, no UI elements, no labels, no human faces, no human body parts.',
-        'This image should look EXACTLY like the MyMoodMapp app icon: thick curved glowing neon arcs on a deep black background, arranged as a loop-type fingerprint with color flowing from warm amber at top through teal in the middle to purple then pink at the base.',
+        dimMind > 60 ? 'Mathematically smooth precise curves.' : 'Slightly organic softness, like a real fingerprint scan.',
+        s >= 65 ? 'Faint star-dust bokeh in the black background.' : 'Pure black background only.',
+        dominantTag ? `Subtle emotional resonance of "${dominantTag}".` : '',
+        'Ultra high resolution, 3D render, photorealistic glowing neon tubes, centered square composition. No text, no UI, no faces.',
       ].filter(Boolean).join(' ');
     }
 
