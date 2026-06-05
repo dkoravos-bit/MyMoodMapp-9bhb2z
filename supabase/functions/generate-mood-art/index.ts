@@ -166,85 +166,78 @@ serve(async (req) => {
     }
 
     else if (artType === 'print') {
-      // ── Glowing neon-tube fingerprint — matches the MyMoodMapp app icon ─────
-      // Visual reference: luminous 3D rounded ridge-tubes arranged in a
-      // fingerprint loop/whorl, each ridge a thick glowing neon arc with inner
-      // light and soft outer halo — NOT flat lines. Colors grade from warm
-      // amber/gold at the crown, through teal/cyan in the middle arches, to
-      // lavender/purple lower, with pink accent at the base delta. Deep space
-      // black background with faint star-dust bokeh particles.
+      // ── Glowing neon arc fingerprint — exact MyMoodMapp app icon style ──────
+      // The icon shows a LOOP-type fingerprint: wide sweeping horizontal arcs
+      // that do NOT form closed circles. The ridges stack vertically — wide
+      // at the top, narrowing as they descend, with the loop core visible
+      // near the center-bottom. Each ridge is a thick 3D glowing tube with a
+      // rounded cross-section, inner bright core, and wide soft outer halo.
+      // Colors flow TOP → BOTTOM: warm amber/gold → electric teal/cyan → violet/purple → coral-pink.
+      // Pure jet-black background. The arcs go edge-to-edge horizontally.
       aspectRatio = '1:1';
 
-      // Ridge color gradient driven by mood score
-      const ridgeTopColor = s >= 75
-        ? 'blazing warm gold and amber at the crown ridges'
-        : s >= 55
-          ? 'soft warm honey-gold at the top ridges'
-          : s >= 40
-            ? 'muted ochre-amber crown ridges'
-            : 'dim rust-bronze crown ridges fading into darkness';
+      // Crown arc color (topmost widest arcs)
+      const crownColor = s >= 70
+        ? 'blazing warm amber and gold — bright as sunrise, intensely luminous'
+        : s >= 50
+          ? 'warm honey-amber glowing softly from within'
+          : 'dim ochre-bronze faintly lit';
 
-      const ridgeMidColor = s >= 75
-        ? 'vivid electric teal and cyan through the central arch ridges'
-        : s >= 55
-          ? 'cool teal-mint mid ridges with gentle inner glow'
-          : s >= 40
-            ? 'muted sage-teal mid ridges'
-            : 'cold slate-teal mid ridges barely glowing';
+      // Upper-middle arc color
+      const upperMidColor = s >= 70
+        ? 'vivid electric teal and bright cyan — the arcs pulse with cold neon light'
+        : s >= 50
+          ? 'soft teal-mint with a gentle inner glow'
+          : 'muted steel-teal barely illuminated';
 
-      const ridgeLowColor = s >= 75
-        ? 'rich luminous violet and soft lavender in the lower ridges'
-        : s >= 55
-          ? 'mid purple-lavender lower ridges with amethyst highlights'
-          : s >= 40
-            ? 'muted indigo-lavender lower ridges'
-            : 'deep cold indigo lower ridges almost dark';
+      // Lower-middle arc color
+      const lowerMidColor = s >= 70
+        ? 'rich violet and luminous lavender — deep purple with amethyst shimmer'
+        : s >= 50
+          ? 'mid purple-lavender with soft amethyst highlights'
+          : 'cold dark indigo almost fading to black';
 
-      const ridgeBaseColor = dimEnergy > 60
-        ? 'warm coral-pink and rose at the base delta with a subtle inner spark'
-        : 'cool mauve-pink base delta, softly glowing';
+      // Base arc color (the tightest innermost curves near the delta)
+      const baseColor = dimEnergy > 55
+        ? 'warm coral-pink and soft rose — the innermost loops glow with warm light'
+        : 'cool mauve-pink, faint and delicate at the convergence point';
 
-      // Ridge thickness and glow driven by body + energy
-      const ridgeTube = (dimBody + dimEnergy) / 2 > 60
-        ? '3D rounded tube ridges with thick glowing walls, each ridge a smooth luminous neon pipe with a bright inner core and wide soft outer halo'
-        : '3D rounded tube ridges, somewhat thinner and more delicate, each ridge a slender glowing filament with a gentle diffuse halo';
+      // Ridge thickness
+      const ridgeWeight = (dimBody + dimEnergy) / 2 > 55
+        ? 'very thick — each arc is a fat rounded tube, bold and dominant, with a wide bright core and massive outer glow halo'
+        : 'medium thickness — rounded tube arcs, elegant and refined, with a bright inner core and moderate glow';
 
-      // Whorl pattern driven by volatility
-      const whorlShape = volatility === 'stable'
-        ? 'a clean classic loop-whorl fingerprint: wide sweeping arches at the top, graceful U-loop curves in the center, and a neat delta base — perfectly symmetrical and centered'
+      // Arc shape (loop fingerprint, not whorl)
+      const arcShape = volatility === 'stable'
+        ? 'perfectly symmetrical horizontal arcs — each one a smooth wide parabola, the loops converge to a single clean point at the lower center'
         : volatility === 'variable'
-          ? 'a double-loop whorl fingerprint: two interlocking S-curve loops meeting in the center, creating a yin-yang rhythm in the ridge flow'
-          : 'an asymmetric tented-arch fingerprint: steep dramatic arches that peak sharply at the center, ridges diverging outward from a high apex, dynamic and energetic';
+          ? 'slightly asymmetric sweeping arcs — some wider on the left, some on the right, organic and hand-drawn feeling'
+          : 'dramatically arched curves — steep sharp peaks at the top, the loops converge at an acute angle below';
 
-      // Background atmosphere
-      const bgAtmosphere = s >= 65
-        ? 'very deep pure black background with faint scattered star-dust particles and a barely-visible soft cosmic nebula glow behind the fingerprint center'
-        : 'deep black void background, almost no background detail, the fingerprint is the only light source in the composition';
-
-      // Trend effect
-      const trendEffect = trend === 'improving'
-        ? 'the ridges at the crown are the brightest and most vibrant, radiating outward — a sense of upward momentum and expanding light'
+      // Trend effect on brightness distribution
+      const brightnessDist = trend === 'improving'
+        ? 'The topmost amber arcs are the BRIGHTEST — blazing and dominant. Brightness gradually softens toward the base.'
         : trend === 'declining'
-          ? 'the ridges at the base are the dimmest, the crown ridges still glow but the overall composition draws inward — quiet introspective energy'
-          : 'every ridge layer glows with equal balanced intensity from crown to base — harmonious equilibrium';
+          ? 'The lower pink arcs glow brightest — a quiet warmth pulling inward. The upper arcs are somewhat dimmer.'
+          : 'Every arc glows with equal intensity from crown to base — perfect luminous equilibrium.';
 
       prompt = [
-        `A glowing neon fingerprint portrait on a pure black background. The fingerprint is composed of ${ridgeTube}.`,
-        `The ridge arrangement follows ${whorlShape}.`,
-        `Color gradient from top to bottom: ${ridgeTopColor}. ${ridgeMidColor}. ${ridgeLowColor}. ${ridgeBaseColor}.`,
-        `Each individual ridge is a smooth curved arc tube — round in cross-section, three-dimensional, with a bright luminous inner core, a vivid neon surface, and a wide soft outer glow halo that bleeds into the black background.`,
-        `The ridges do NOT touch or overlap — there is clean dark negative space between every ridge, which makes each glowing arc pop against the void.`,
-        `${bgAtmosphere}.`,
-        `${trendEffect}.`,
-        dimBody > 60
-          ? 'Ridges are thick, confident, and boldly lit — strong physical presence.'
-          : 'Ridges are slender and ethereal — soft and contemplative.',
+        `A glowing fingerprint portrait on a pure jet-black background. This is a LOOP-TYPE fingerprint: the ridges are wide sweeping horizontal arcs that stack from top to bottom — they do NOT form concentric circles. The arcs are widest at the top and gradually tighten as they descend, converging at a loop core point near the lower center.`,
+        `Each ridge is ${ridgeWeight}. Every arc is a smooth 3D rounded tube — like a glowing neon pipe — with a bright luminous inner core, a vivid neon-colored surface, and a wide soft outer glow halo bleeding into the black void around it.`,
+        `The arcs extend horizontally across the FULL WIDTH of the image — they begin and end beyond the frame edges, just like a real fingerprint scan.`,
+        `Color gradient flowing strictly TOP to BOTTOM: ${crownColor} for the topmost 4-5 arcs. ${upperMidColor} for the next band of arcs. ${lowerMidColor} for the lower arcs. ${baseColor} at the innermost loop curves.`,
+        `${arcShape}.`,
+        `${brightnessDist}`,
+        `The negative space between every arc is pure black — clean, dark, unlit — which makes each glowing tube arc pop with maximum contrast.`,
         dimMind > 60
-          ? 'The ridge curves are mathematically precise and perfectly smooth — clarity and sharpness in every arc.'
-          : 'The ridge curves have a slight organic softness — slightly imprecise, dreamlike.',
-        dominantTag ? `The overall palette subtly resonates with the emotional tone of "${dominantTag}".` : '',
-        'Ultra high resolution, cinematic studio black background, photorealistic 3D render quality. Centered composition. Square format. Absolutely no text, no labels, no UI elements, no human faces, no body parts.',
-        'Style reference: luminous neon glass tube ridges, similar to the MyMoodMapp app icon — glowing arcs of colored light arranged in a fingerprint pattern against a deep black void.',
+          ? 'The arc curves are mathematically smooth and precise — no rough edges, perfectly rendered geometry.'
+          : 'The arc curves have a subtle organic softness — slightly imperfect, like a real fingerprint scan.',
+        s >= 65
+          ? 'Faint star-dust bokeh particles scattered in the deep black background — tiny cosmic sparkles that add depth without distracting from the arcs.'
+          : 'Pure black background, zero background elements — the arcs are the only source of light.',
+        dominantTag ? `The overall palette has a subtle emotional resonance with the feeling of "${dominantTag}".` : '',
+        'Ultra high resolution, 3D render quality, cinematic studio lighting, photorealistic glowing neon tubes. Centered portrait composition. Square format. Absolutely no text, no numbers, no UI elements, no labels, no human faces, no human body parts.',
+        'This image should look EXACTLY like the MyMoodMapp app icon: thick curved glowing neon arcs on a deep black background, arranged as a loop-type fingerprint with color flowing from warm amber at top through teal in the middle to purple then pink at the base.',
       ].filter(Boolean).join(' ');
     }
 

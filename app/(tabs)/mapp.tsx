@@ -175,7 +175,7 @@ function RadialCompass({
 // Direct Pollinations calls are unreliable (CORS, CDN instability, no storage).
 // The Edge Function: calls Pollinations → uploads to Supabase Storage → returns a
 // stable public CDN URL. Always use invokeArtFunction() — never call Pollinations directly.
-const ART_VER = 'v28'; // bump this when you need to force-clear all cached art
+const ART_VER = 'v29'; // bump this when you need to force-clear all cached art
 const TTL_MS  = 26 * 60 * 60 * 1000; // 26h
 
 // TODAY_DATE is intentionally a function so web SSR never freezes it at module-load time.
@@ -611,6 +611,7 @@ export default function MappScreen() {
   const { colors: C } = useTheme();
 
   const [activeLayer, setActiveLayer] = useState<LayerKey>('correlations');
+  const [regenKey, setRegenKey] = useState(0);
   const [art, setArt] = useState<AllArt>({
     now:      { url: null, loading: false, error: false },
     week:     { url: null, loading: false, error: false },
@@ -874,6 +875,7 @@ export default function MappScreen() {
         // New log(s) since we last generated art — wipe in-memory art state.
         // Cache keys embed log count so existing stored URLs won't be returned;
         // this clears the React state so the UI shows loading and prefetch runs.
+        // Wipe in-memory art state so UI shows loading for all layers
         setArt({
           now:      { url: null, loading: false, error: false },
           week:     { url: null, loading: false, error: false },
@@ -883,6 +885,11 @@ export default function MappScreen() {
         });
         fetchRef.current.clear();
         inflightRef.current.clear();
+        // Reset fetch counter so the prefetch effect re-runs even though
+        // moodLogEntries.length hasn't changed since it last ran
+        lastFetchedLogCount.current = -1;
+        // Bump regenKey to force the prefetch effect to re-execute
+        setRegenKey(k => k + 1);
       }
       lastArtLogCount.current = currentCount;
     }, [moodLogEntries.length])
@@ -947,7 +954,7 @@ export default function MappScreen() {
     tryM();
     tryF();
     tryP();
-  }, [moodLogEntries.length, doFetch]); // eslint-disable-line
+  }, [moodLogEntries.length, doFetch, regenKey]); // eslint-disable-line
 
   const TILE_W = 88;
   const TILE_H = 64;
