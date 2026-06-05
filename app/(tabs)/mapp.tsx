@@ -14,6 +14,7 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
@@ -858,6 +859,35 @@ export default function MappScreen() {
   // layer blocked all subsequent layers. Now each layer races independently —
   // a 60s Now generation no longer delays Week from starting.
   // Guards prevent duplicate fetches: fetchRef dedup + inflightRef promise dedup.
+  // ── New-log art invalidation ─────────────────────────────────────────────────
+  // When the user completes a new log in the Log tab and then navigates back here,
+  // the art must regenerate for the new entry. We track the log count that was
+  // current the last time art was fully loaded. On focus, if the count has grown
+  // we clear all in-memory art state so the prefetch effect re-runs with the new
+  // cache keys (which embed the log count), forcing fresh generation.
+  const lastArtLogCount = useRef(-1);
+
+  useFocusEffect(
+    useCallback(() => {
+      const currentCount = moodLogEntries.length;
+      if (currentCount > 0 && lastArtLogCount.current !== -1 && currentCount !== lastArtLogCount.current) {
+        // New log(s) since we last generated art — wipe in-memory art state.
+        // Cache keys embed log count so existing stored URLs won't be returned;
+        // this clears the React state so the UI shows loading and prefetch runs.
+        setArt({
+          now:      { url: null, loading: false, error: false },
+          week:     { url: null, loading: false, error: false },
+          month:    { url: null, loading: false, error: false },
+          forecast: { url: null, loading: false, error: false },
+          print:    { url: null, loading: false, error: false },
+        });
+        fetchRef.current.clear();
+        inflightRef.current.clear();
+      }
+      lastArtLogCount.current = currentCount;
+    }, [moodLogEntries.length])
+  );
+
   const lastFetchedLogCount = useRef(-1);
 
   useEffect(() => {
@@ -2045,17 +2075,17 @@ function LayerForecast({ entries, weatherData, timePat, tagCorr, baseline, forec
                 borderBottomColor: C.border,
               }}>
                 <View style={{
-                  width: 22, height: 22, borderRadius: 11,
+                  width: 26, height: 26, borderRadius: 13,
                   backgroundColor: dotColor + '20',
                   alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0, marginTop: 1,
+                  flexShrink: 0, marginTop: 2,
                 }}>
-                  <MaterialIcons name={iconName as any} size={12} color={dotColor} />
+                  <MaterialIcons name={iconName as any} size={14} color={dotColor} />
                 </View>
                 <Text style={{
-                  flex: 1, fontSize: 12,
+                  flex: 1, fontSize: 15,
                   color: textColor,
-                  lineHeight: 18,
+                  lineHeight: 22,
                   fontWeight: i === 0 ? '600' : '400',
                   includeFontPadding: false,
                 } as any}>{text}</Text>
@@ -2064,8 +2094,8 @@ function LayerForecast({ entries, weatherData, timePat, tagCorr, baseline, forec
           })}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4, paddingTop: 8, borderTopWidth: 1, borderTopColor: C.border }}>
-          <MaterialIcons name="info-outline" size={11} color={C.textMuted} />
-          <Text style={{ fontSize: 10, color: C.textMuted, includeFontPadding: false } as any}>Based on your time-of-day patterns · baseline {Math.round(baseline)}</Text>
+          <MaterialIcons name="info-outline" size={13} color={C.textMuted} />
+          <Text style={{ fontSize: 13, color: C.textMuted, includeFontPadding: false } as any}>Based on your time-of-day patterns · baseline {Math.round(baseline)}</Text>
         </View>
       </GCard>
 
