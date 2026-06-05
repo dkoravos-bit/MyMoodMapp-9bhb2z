@@ -166,41 +166,85 @@ serve(async (req) => {
     }
 
     else if (artType === 'print') {
-      // ── ECCENTRIC alien soul-signature fingerprint ───────────────────────
+      // ── Glowing neon-tube fingerprint — matches the MyMoodMapp app icon ─────
+      // Visual reference: luminous 3D rounded ridge-tubes arranged in a
+      // fingerprint loop/whorl, each ridge a thick glowing neon arc with inner
+      // light and soft outer halo — NOT flat lines. Colors grade from warm
+      // amber/gold at the crown, through teal/cyan in the middle arches, to
+      // lavender/purple lower, with pink accent at the base delta. Deep space
+      // black background with faint star-dust bokeh particles.
       aspectRatio = '1:1';
 
-      const ridgeStyle = volatility === 'stable'
-        ? 'perfectly repeating crystalline mandala ridges radiating from a central singularity, each ridge line a luminous thread of pure geometry'
+      // Ridge color gradient driven by mood score
+      const ridgeTopColor = s >= 75
+        ? 'blazing warm gold and amber at the crown ridges'
+        : s >= 55
+          ? 'soft warm honey-gold at the top ridges'
+          : s >= 40
+            ? 'muted ochre-amber crown ridges'
+            : 'dim rust-bronze crown ridges fading into darkness';
+
+      const ridgeMidColor = s >= 75
+        ? 'vivid electric teal and cyan through the central arch ridges'
+        : s >= 55
+          ? 'cool teal-mint mid ridges with gentle inner glow'
+          : s >= 40
+            ? 'muted sage-teal mid ridges'
+            : 'cold slate-teal mid ridges barely glowing';
+
+      const ridgeLowColor = s >= 75
+        ? 'rich luminous violet and soft lavender in the lower ridges'
+        : s >= 55
+          ? 'mid purple-lavender lower ridges with amethyst highlights'
+          : s >= 40
+            ? 'muted indigo-lavender lower ridges'
+            : 'deep cold indigo lower ridges almost dark';
+
+      const ridgeBaseColor = dimEnergy > 60
+        ? 'warm coral-pink and rose at the base delta with a subtle inner spark'
+        : 'cool mauve-pink base delta, softly glowing';
+
+      // Ridge thickness and glow driven by body + energy
+      const ridgeTube = (dimBody + dimEnergy) / 2 > 60
+        ? '3D rounded tube ridges with thick glowing walls, each ridge a smooth luminous neon pipe with a bright inner core and wide soft outer halo'
+        : '3D rounded tube ridges, somewhat thinner and more delicate, each ridge a slender glowing filament with a gentle diffuse halo';
+
+      // Whorl pattern driven by volatility
+      const whorlShape = volatility === 'stable'
+        ? 'a clean classic loop-whorl fingerprint: wide sweeping arches at the top, graceful U-loop curves in the center, and a neat delta base — perfectly symmetrical and centered'
         : volatility === 'variable'
-          ? 'bifurcating fractal vine ridges that split and regrow like alien mycelium, organic yet mathematical, every fork a decision point'
-          : 'shattered obsidian ridge fragments suspended mid-explosion, crystalline shards frozen in time, quantum decoherence made visible';
+          ? 'a double-loop whorl fingerprint: two interlocking S-curve loops meeting in the center, creating a yin-yang rhythm in the ridge flow'
+          : 'an asymmetric tented-arch fingerprint: steep dramatic arches that peak sharply at the center, ridges diverging outward from a high apex, dynamic and energetic';
 
-      const ridgeTexture = dimEnergy > 60
-        ? 'ridges pulse with bioluminescent inner fire, veins of molten neon light running through each line'
-        : 'ridges glow with cold spectral phosphorescence, each groove filled with deep cosmic shadow';
+      // Background atmosphere
+      const bgAtmosphere = s >= 65
+        ? 'very deep pure black background with faint scattered star-dust particles and a barely-visible soft cosmic nebula glow behind the fingerprint center'
+        : 'deep black void background, almost no background detail, the fingerprint is the only light source in the composition';
 
-      const ridgeDetail = dimMind > 60
-        ? 'micro-engravings of sacred symbols — vesica piscis, triskelion, and metatron nodes — carved into the ridge faces at nanoscale'
-        : 'ridges dissolve at their edges into quantum probability clouds, uncertain and alive';
-
-      const coreVortex = s > 65
-        ? 'central whorl opens into a blazing interdimensional portal — rings of light expanding outward from a white-hot singularity'
-        : s > 40
-          ? 'central whorl is a slowly rotating eye of calm — deep violet and cobalt layers coiling inward to a glowing amber nucleus'
-          : 'central whorl collapses inward like a dark star — dense gravitational rings pulling all light toward a hollow black center';
+      // Trend effect
+      const trendEffect = trend === 'improving'
+        ? 'the ridges at the crown are the brightest and most vibrant, radiating outward — a sense of upward momentum and expanding light'
+        : trend === 'declining'
+          ? 'the ridges at the base are the dimmest, the crown ridges still glow but the overall composition draws inward — quiet introspective energy'
+          : 'every ridge layer glows with equal balanced intensity from crown to base — harmonious equilibrium';
 
       prompt = [
-        `Hyper-surrealist macro fingerprint as cosmic artifact. Not a human fingerprint — a soul-signature from another dimension.`,
-        `Pure black void background. ${palette(s)} color spectrum suffusing the ridge lines.`,
-        `Ridge architecture: ${ridgeStyle}.`,
-        `${ridgeTexture}.`,
-        `${ridgeDetail}.`,
-        `Core: ${coreVortex}.`,
-        dimBody > 60 ? 'Ridge walls are thick and monolithic, like ancient standing stones arranged in concentric rings.' : 'Ridge walls are wafer-thin, delicate as insect wings, trembling at the edge of visibility.',
-        trend === 'improving' ? 'Spiraling ridges uncoil outward in an expanding golden ratio pattern, momentum made physical.' : trend === 'declining' ? 'Ridges contract inward in tightening death-spiral loops, gravity pulling everything toward center.' : 'Ridges hold perfect equilibrium — neither expanding nor contracting, suspended in sacred stillness.',
-        dominantTag ? `The entire pattern resonates with the emotional frequency of "${dominantTag}" — visible as a subtle harmonic interference pattern across every ridge.` : '',
-        `${entryCount ?? 30} data points encoded as ${entryCount ?? 30} distinct ridge micro-variations, each one a day crystallized.`,
-        'Extreme macro photography aesthetic, infinite depth of field, studio void lighting. Otherworldly, unsettling beauty. No text, no labels, no UI elements.',
+        `A glowing neon fingerprint portrait on a pure black background. The fingerprint is composed of ${ridgeTube}.`,
+        `The ridge arrangement follows ${whorlShape}.`,
+        `Color gradient from top to bottom: ${ridgeTopColor}. ${ridgeMidColor}. ${ridgeLowColor}. ${ridgeBaseColor}.`,
+        `Each individual ridge is a smooth curved arc tube — round in cross-section, three-dimensional, with a bright luminous inner core, a vivid neon surface, and a wide soft outer glow halo that bleeds into the black background.`,
+        `The ridges do NOT touch or overlap — there is clean dark negative space between every ridge, which makes each glowing arc pop against the void.`,
+        `${bgAtmosphere}.`,
+        `${trendEffect}.`,
+        dimBody > 60
+          ? 'Ridges are thick, confident, and boldly lit — strong physical presence.'
+          : 'Ridges are slender and ethereal — soft and contemplative.',
+        dimMind > 60
+          ? 'The ridge curves are mathematically precise and perfectly smooth — clarity and sharpness in every arc.'
+          : 'The ridge curves have a slight organic softness — slightly imprecise, dreamlike.',
+        dominantTag ? `The overall palette subtly resonates with the emotional tone of "${dominantTag}".` : '',
+        'Ultra high resolution, cinematic studio black background, photorealistic 3D render quality. Centered composition. Square format. Absolutely no text, no labels, no UI elements, no human faces, no body parts.',
+        'Style reference: luminous neon glass tube ridges, similar to the MyMoodMapp app icon — glowing arcs of colored light arranged in a fingerprint pattern against a deep black void.',
       ].filter(Boolean).join(' ');
     }
 

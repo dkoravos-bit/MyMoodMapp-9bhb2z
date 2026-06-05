@@ -175,7 +175,7 @@ function RadialCompass({
 // Direct Pollinations calls are unreliable (CORS, CDN instability, no storage).
 // The Edge Function: calls Pollinations → uploads to Supabase Storage → returns a
 // stable public CDN URL. Always use invokeArtFunction() — never call Pollinations directly.
-const ART_VER = 'v27'; // bump this when you need to force-clear all cached art
+const ART_VER = 'v28'; // bump this when you need to force-clear all cached art
 const TTL_MS  = 26 * 60 * 60 * 1000; // 26h
 
 // TODAY_DATE is intentionally a function so web SSR never freezes it at module-load time.
