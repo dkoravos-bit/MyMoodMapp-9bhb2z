@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.dkoravos.mymoodmapp",
-      "buildNumber": "48",
+      "buildNumber": "49",
       "jsEngine": "hermes",
       "infoPlist": {
         "UIBackgroundModes": [
@@ -42,7 +42,7 @@
         "backgroundColor": "#0A0A14"
       },
       "package": "com.dkoravos.mymoodmapp",
-      "versionCode": 9,
+      "versionCode": 10,
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.FOREGROUND_SERVICE",
