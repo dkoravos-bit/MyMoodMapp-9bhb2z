@@ -1,8 +1,9 @@
 /**
- * generate-mood-art — Free AI image generation via Pollinations.ai
+ * generate-mood-art — AI image generation via Cloudflare Workers AI (FLUX Schnell)
  *
- * Uses Pollinations.ai (flux-schnell) — completely free, no API key required.
- * Zero paid AI dependencies.
+ * Primary:  Cloudflare Workers AI → @cf/black-forest-labs/flux-1-schnell
+ *           Uses CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_AI_API_TOKEN (server-side only)
+ * Fallback: Pollinations.ai (flux, free, no key)
  *
  * Art types:
  *   "now"       → radial energy portrait for current emotional state
@@ -30,6 +31,94 @@ const sceneMood = (s: number) => {
   if (s >= 35) return 'brooding, quiet, introspective';
   return 'heavy, deep, searching for light';
 };
+
+// ── Cloudflare Workers AI — FLUX Schnell ─────────────────────────────────────
+async function generateViaCloudflare(
+  prompt: string,
+  seed: number,
+): Promise<{ base64: string; contentType: string } | null> {
+  const accountId = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
+  const apiToken  = Deno.env.get('CLOUDFLARE_AI_API_TOKEN');
+
+  if (!accountId || !apiToken) {
+    console.warn('[mood-art] Cloudflare credentials not configured');
+    return null;
+  }
+
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/@cf/black-forest-labs/flux-1-schnell`;
+
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt, steps: 4, seed }),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => resp.statusText);
+      console.warn(`[mood-art] Cloudflare HTTP ${resp.status}: ${errText}`);
+      return null;
+    }
+
+    // CF Workers AI returns JSON: { result: { image: "<base64>" }, success: true }
+    const data = await resp.json();
+
+    if (!data?.success) {
+      console.warn('[mood-art] Cloudflare returned success=false:', JSON.stringify(data?.errors));
+      return null;
+    }
+
+    const imageBase64: string | undefined = data?.result?.image;
+    if (!imageBase64 || imageBase64.length < 100) {
+      console.warn('[mood-art] Cloudflare returned empty image field');
+      return null;
+    }
+
+    console.log(`[mood-art] Cloudflare FLUX success, base64 length=${imageBase64.length}`);
+    return { base64: imageBase64, contentType: 'image/png' };
+
+  } catch (err) {
+    console.warn('[mood-art] Cloudflare fetch error:', err);
+    return null;
+  }
+}
+
+// ── Pollinations.ai — free fallback ──────────────────────────────────────────
+async function generateViaPollinations(
+  prompt: string,
+  w: number,
+  h: number,
+  seed: number,
+): Promise<{ base64: string; contentType: string } | null> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 10000 * attempt));
+    try {
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&model=flux&nologo=true&enhance=false&seed=${seed + attempt}&safe=false`;
+      const imgResp = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(90000) });
+      if (!imgResp.ok) {
+        console.warn(`[mood-art] Pollinations HTTP ${imgResp.status} (attempt ${attempt + 1})`);
+        continue;
+      }
+      const buf = await imgResp.arrayBuffer();
+      if (buf.byteLength > 1000) {
+        const uint8 = new Uint8Array(buf);
+        let binary = '';
+        for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
+        const base64 = btoa(binary);
+        const contentType = imgResp.headers.get('content-type') ?? 'image/jpeg';
+        console.log(`[mood-art] Pollinations success (attempt ${attempt + 1}), bytes=${buf.byteLength}`);
+        return { base64, contentType };
+      }
+    } catch (pe) {
+      console.warn(`[mood-art] Pollinations attempt ${attempt + 1} failed:`, pe);
+    }
+  }
+  return null;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -134,43 +223,26 @@ serve(async (req) => {
       ].filter(Boolean).join(' ');
     }
 
-    // ── Pollinations.ai — free, no API key ──────────────────────────────────
+    // ── Seed & dimensions ────────────────────────────────────────────────────
     const seed = (seedOverride != null ? Number(seedOverride) : null) ?? Math.floor(Math.random() * 999999);
-    const w = aspectRatio === '16:9' ? 640 : 512;
-    const h = aspectRatio === '16:9' ? 360 : 512;
+    // Pollinations fallback dimensions (CF always returns ~1024 native)
+    const fbW = aspectRatio === '16:9' ? 640 : 512;
+    const fbH = aspectRatio === '16:9' ? 360 : 512;
 
-    let imageBase64: string | null = null;
-    let imageContentType = 'image/jpeg';
+    console.log(`[mood-art] Generating ${artType} | aspect=${aspectRatio} | seed=${seed}`);
 
-    console.log(`[mood-art] Generating ${artType} via Pollinations.ai aspect=${aspectRatio} seed=${seed}`);
+    // ── 1. Try Cloudflare Workers AI (FLUX Schnell) ──────────────────────────
+    let result = await generateViaCloudflare(prompt, seed);
 
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (attempt > 0) await new Promise(r => setTimeout(r, 10000 * attempt));
-      try {
-        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${w}&height=${h}&model=flux&nologo=true&enhance=false&seed=${seed + attempt}&safe=false`;
-        const imgResp = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(90000) });
-        if (imgResp.ok) {
-          const buf = await imgResp.arrayBuffer();
-          if (buf.byteLength > 1000) {
-            const uint8 = new Uint8Array(buf);
-            let binary = '';
-            for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
-            imageBase64 = btoa(binary);
-            imageContentType = imgResp.headers.get('content-type') ?? 'image/jpeg';
-            console.log(`[mood-art] Pollinations success (attempt ${attempt + 1}), bytes=${buf.byteLength}`);
-            break;
-          }
-        } else {
-          console.warn(`[mood-art] Pollinations HTTP ${imgResp.status} (attempt ${attempt + 1})`);
-        }
-      } catch (pe) {
-        console.warn(`[mood-art] Pollinations attempt ${attempt + 1} failed:`, pe);
-      }
+    // ── 2. Fallback to Pollinations.ai ───────────────────────────────────────
+    if (!result) {
+      console.log('[mood-art] Cloudflare failed — falling back to Pollinations.ai');
+      result = await generateViaPollinations(prompt, fbW, fbH, seed);
     }
 
-    if (!imageBase64) {
+    if (!result) {
       return new Response(
-        JSON.stringify({ error: 'Image generation failed after 3 attempts' }),
+        JSON.stringify({ error: 'Image generation failed on all providers' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -181,17 +253,17 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const ext = imageContentType.includes('png') ? 'png' : 'jpg';
+    const ext = result.contentType.includes('png') ? 'png' : 'jpg';
     const fileName = `mood-art/${artType}-${Date.now()}-${seed}.${ext}`;
 
-    const binaryStr = atob(imageBase64);
+    const binaryStr = atob(result.base64);
     const imageBytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) imageBytes[i] = binaryStr.charCodeAt(i);
 
     const { error: uploadError } = await supabase.storage
       .from('vibe-cards')
       .upload(fileName, imageBytes.buffer, {
-        contentType: imageContentType,
+        contentType: result.contentType,
         cacheControl: '86400',
         upsert: false,
       });
