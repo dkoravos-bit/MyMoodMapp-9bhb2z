@@ -185,7 +185,11 @@ export function WebSidebar({ children }: WebSidebarProps) {
   const { user } = useAuth();
   const isDesktop = useIsDesktopWeb();
 
-  if (!isDesktop) return <>{children}</>;
+  // These pages have their own full-page layout — bypass the sidebar entirely
+  const STANDALONE_ROUTES = ['/privacy', '/terms', '/landing', '/login', '/onboarding'];
+  const isStandalone = STANDALONE_ROUTES.some(r => pathname === r || pathname.startsWith(r + '?'));
+
+  if (!isDesktop || isStandalone) return <>{children}</>;
 
   const isActive = (route: string) => {
     if (route === '/(tabs)') return pathname === '/' || pathname === '/index' || pathname === '/(tabs)' || pathname === '/(tabs)/index';
