@@ -152,6 +152,23 @@ function makeStyles(C: typeof DarkColors) {
       marginLeft: WEB_SIDEBAR_WIDTH,
       flex: 1,
       minHeight: '100vh' as any,
+      overflow: 'hidden' as any,
+    },
+    bgWatermark: {
+      position: 'absolute' as any,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      pointerEvents: 'none' as any,
+      zIndex: 0,
+    },
+    bgImage: {
+      width: '70%' as any,
+      height: '70%' as any,
+      opacity: 0.07,
     },
   });
 }
@@ -241,8 +258,19 @@ export function WebSidebar({ children }: WebSidebarProps) {
         ) : null}
       </View>
 
-      {/* Main content area (offset by sidebar) */}
-      <View style={styles.mainContent}>{children}</View>
+      {/* Main content area (offset by sidebar) with moodprint watermark background */}
+      <View style={styles.mainContent}>
+        {/* Fullscreen moodprint watermark — desktop web only */}
+        <View pointerEvents="none" style={styles.bgWatermark}>
+          <Image
+            source={require('@/assets/moodprint-icon.png')}
+            style={styles.bgImage}
+            contentFit="contain"
+            transition={0}
+          />
+        </View>
+        {children}
+      </View>
     </View>
   );
 }
