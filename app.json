@@ -59,7 +59,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/moodprint-icon.jpg"
     },
     "plugins": [
       [

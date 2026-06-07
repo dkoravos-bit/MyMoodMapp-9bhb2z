@@ -16,6 +16,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useRouter, usePathname } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DarkColors, Typography, Spacing, Radius } from '@/constants/theme';
@@ -76,11 +77,7 @@ function makeStyles(C: typeof DarkColors) {
       width: 34,
       height: 34,
       borderRadius: 10,
-      backgroundColor: C.primarySoft,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: C.primary + '40',
+      overflow: 'hidden',
     },
     brandName: {
       fontSize: Typography.fontSizes.md,
@@ -184,9 +181,12 @@ export function WebSidebar({ children }: WebSidebarProps) {
       <View style={styles.sidebar}>
         {/* Brand */}
         <View style={styles.sidebarBrand}>
-          <View style={styles.brandLogo}>
-            <MaterialIcons name="mood" size={18} color={C.primary} />
-          </View>
+          <Image
+            source={require('@/assets/moodprint-icon.png')}
+            style={styles.brandLogo}
+            contentFit="cover"
+            transition={0}
+          />
           <Text style={styles.brandName}>MyMoodMapp</Text>
         </View>
 
