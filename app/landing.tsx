@@ -78,16 +78,16 @@ const ALL_FEATURES = [
 ];
 
 const PHONE_SCREENSHOTS = [
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/kjNYqYtUwtcH5J3R3Woo2n/light_01_dashboard.jpg', label: 'Dashboard · Light',   sub: '7-day trend + what moves your score' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/HHxDSaffYHRvfAfJX46EsR/light_02_log.jpg',        label: "Today's Log · Light", sub: 'Combined score · body, mind, energy, focus' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/HRbSWKp6zBkKjxh6f6SwnT/light_03_patterns.jpg',   label: 'Patterns · Light',    sub: 'Tag impact · 7-day score trend' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/8KMRbVPw3s25N3YPGK9UNe/light_04_moodlab.jpg',   label: 'Mood Lab · Light',    sub: 'Guided Meditation · Sleep & Anxiety' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/MyQGw2HE8vAYLvnhfsHmCa/light_05_mapp.jpg',       label: 'Mapp · Light',        sub: 'Live AI emotional compass' },
   { uri: 'https://cdn-ai.onspace.ai/onspace/files/kgVXndHKcmab9bb7uKdVjz/dark_01_dashboard.jpg',  label: 'Dashboard · Dark',    sub: 'Bright theme — same data, dark look' },
   { uri: 'https://cdn-ai.onspace.ai/onspace/files/QyZi7SHaDtxZMGBKUKJKmG/dark_02_log.jpg',         label: "Today's Log · Dark",  sub: 'Peak performance entries' },
   { uri: 'https://cdn-ai.onspace.ai/onspace/files/huXmgFBoTW5uxM9bEjH4PW/dark_03_patterns.jpg',    label: 'Patterns · Dark',     sub: 'Tags · Time · AI Report tabs' },
   { uri: 'https://cdn-ai.onspace.ai/onspace/files/j8V63eSB83yCWuCTxCaoHQ/dark_04_moodlab.jpg',    label: 'Mood Lab · Dark',     sub: 'Guided Meditation with categories' },
   { uri: 'https://cdn-ai.onspace.ai/onspace/files/DB3YfdGqKwFTxrBSfaGMLH/dark_05_mapp.jpg',        label: 'Mapp · Dark',         sub: 'AI compass in dark mode' },
+  { uri: 'https://cdn-ai.onspace.ai/onspace/files/kjNYqYtUwtcH5J3R3Woo2n/light_01_dashboard.jpg', label: 'Dashboard · Light',   sub: '7-day trend + what moves your score' },
+  { uri: 'https://cdn-ai.onspace.ai/onspace/files/HHxDSaffYHRvfAfJX46EsR/light_02_log.jpg',        label: "Today's Log · Light", sub: 'Combined score · body, mind, energy, focus' },
+  { uri: 'https://cdn-ai.onspace.ai/onspace/files/HRbSWKp6zBkKjxh6f6SwnT/light_03_patterns.jpg',   label: 'Patterns · Light',    sub: 'Tag impact · 7-day score trend' },
+  { uri: 'https://cdn-ai.onspace.ai/onspace/files/8KMRbVPw3s25N3YPGK9UNe/light_04_moodlab.jpg',   label: 'Mood Lab · Light',    sub: 'Guided Meditation · Sleep & Anxiety' },
+  { uri: 'https://cdn-ai.onspace.ai/onspace/files/MyQGw2HE8vAYLvnhfsHmCa/light_05_mapp.jpg',       label: 'Mapp · Light',        sub: 'Live AI emotional compass' },
 ];
 
 const WEB_SCREENSHOTS = [
