@@ -43,6 +43,7 @@ const C = {
 };
 
 const MOODPRINT_ICON = require('@/assets/moodprint-icon.png');
+const HERO_CARD = require('@/assets/images/hero-card.jpg');
 const APP_STORE_URL  = 'https://apps.apple.com/app/mymoodmapp/id000000000';
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.mymoodmapp';
 
@@ -293,41 +294,68 @@ export default function LandingScreen() {
               </View>
             </View>
 
-            {/* Desktop hero visuals */}
+            {/* Desktop hero card */}
             {isDesktop && (
-              <View style={{ flex: 1.15, position: 'relative', alignItems: 'center', justifyContent: 'center', minHeight: 560 }}>
-                <View style={{ position: 'absolute', width: 560, height: 560, borderRadius: 280, backgroundColor: 'rgba(94,92,230,0.16)', zIndex: 0 }} />
+              <View style={{ flex: 1.15, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{
-                  position: 'absolute', left: -32, top: '50%', marginTop: -(laptopW / (1390 / 790) / 2),
-                  shadowColor: '#5E5CE6', shadowOffset: { width: 0, height: 32 }, shadowOpacity: 0.30, shadowRadius: 56, elevation: 32, zIndex: 1, opacity: 0.85,
+                  shadowColor: C.primary,
+                  shadowOffset: { width: 0, height: 32 },
+                  shadowOpacity: 0.45,
+                  shadowRadius: 64,
+                  elevation: 40,
+                  borderRadius: 20,
+                  overflow: 'hidden',
                 }}>
-                  <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/gEF3rjf4CpB4a7vBeiXpV7/hero_laptop.png' }} style={{ width: laptopW * 0.88, aspectRatio: 1390 / 790, borderRadius: 12 }} contentFit="contain" transition={500} />
-                </View>
-                <View style={{ zIndex: 2, shadowColor: C.primary, shadowOffset: { width: 0, height: 40 }, shadowOpacity: 0.60, shadowRadius: 72, elevation: 48 }}>
-                  <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/LQJwVdaEfxThXQZCm5pRdU/hero_phone.png' }} style={{ width: Math.min(w * 0.20, 260), aspectRatio: 790 / 1560, borderRadius: 22 }} contentFit="contain" transition={500} />
+                  <Image
+                    source={HERO_CARD}
+                    style={{ width: Math.min(w * 0.46, 600), aspectRatio: 1150 / 600, borderRadius: 20 }}
+                    contentFit="cover"
+                    transition={400}
+                  />
                 </View>
               </View>
             )}
 
-            {/* Tablet hero visuals */}
+            {/* Tablet hero card */}
             {!isDesktop && !isMobile && (
-              <View style={{ width: '100%', position: 'relative', alignItems: 'center', justifyContent: 'center', paddingBottom: 56 }}>
-                <View style={{ position: 'absolute', width: 480, height: 480, borderRadius: 240, backgroundColor: 'rgba(94,92,230,0.14)', top: -60, alignSelf: 'center', zIndex: 0 }} />
-                <View style={{ zIndex: 1, shadowColor: '#5E5CE6', shadowOffset: { width: 0, height: 32 }, shadowOpacity: 0.45, shadowRadius: 64, elevation: 40 }}>
-                  <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/gEF3rjf4CpB4a7vBeiXpV7/hero_laptop.png' }} style={{ width: laptopW, aspectRatio: 1390 / 790, borderRadius: 12 }} contentFit="contain" transition={400} />
-                </View>
-                <View style={{ position: 'absolute', bottom: 0, right: 16, zIndex: 2, shadowColor: C.primary, shadowOffset: { width: 0, height: 32 }, shadowOpacity: 0.60, shadowRadius: 56, elevation: 40 }}>
-                  <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/LQJwVdaEfxThXQZCm5pRdU/hero_phone.png' }} style={{ width: phoneW, aspectRatio: 790 / 1560, borderRadius: 10 }} contentFit="contain" transition={400} />
+              <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{
+                  shadowColor: C.primary,
+                  shadowOffset: { width: 0, height: 24 },
+                  shadowOpacity: 0.40,
+                  shadowRadius: 48,
+                  elevation: 32,
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                }}>
+                  <Image
+                    source={HERO_CARD}
+                    style={{ width: Math.min(w - 48, 640), aspectRatio: 1150 / 600, borderRadius: 16 }}
+                    contentFit="cover"
+                    transition={400}
+                  />
                 </View>
               </View>
             )}
 
-            {/* Mobile hero — phone image centred */}
+            {/* Mobile hero card */}
             {isMobile && (
-              <View style={{ alignItems: 'center', position: 'relative', width: '100%' }}>
-                <View style={{ position: 'absolute', width: phoneW * 1.2, height: phoneW * 1.2, borderRadius: phoneW * 0.6, backgroundColor: 'rgba(94,92,230,0.18)', alignSelf: 'center', zIndex: 0 }} />
-                <View style={{ zIndex: 1, shadowColor: C.primary, shadowOffset: { width: 0, height: 28 }, shadowOpacity: 0.5, shadowRadius: 56, elevation: 40 }}>
-                  <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/LQJwVdaEfxThXQZCm5pRdU/hero_phone.png' }} style={{ width: phoneW, aspectRatio: 790 / 1560 }} contentFit="contain" transition={400} />
+              <View style={{ alignItems: 'center', width: '100%' }}>
+                <View style={{
+                  shadowColor: C.primary,
+                  shadowOffset: { width: 0, height: 16 },
+                  shadowOpacity: 0.35,
+                  shadowRadius: 32,
+                  elevation: 24,
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                }}>
+                  <Image
+                    source={HERO_CARD}
+                    style={{ width: Math.min(w - 32, 380), aspectRatio: 1150 / 600, borderRadius: 14 }}
+                    contentFit="cover"
+                    transition={300}
+                  />
                 </View>
               </View>
             )}
