@@ -26,6 +26,20 @@ export const WEB_SIDEBAR_WIDTH = 220;
 export const WEB_MAX_CONTENT_WIDTH = 960;
 export const WEB_DESKTOP_BREAKPOINT = 1024;
 
+// KAIROS brand tokens
+const KB = {
+  navy:       '#0D1520',
+  navyLight:  '#131E2E',
+  navyBorder: 'rgba(201,160,85,0.18)',
+  gold:       '#C9A055',
+  goldSoft:   'rgba(201,160,85,0.12)',
+  teal:       '#45C4A8',
+  tealSoft:   'rgba(69,196,168,0.12)',
+  text:       '#FFFFFF',
+  textSub:    'rgba(255,255,255,0.65)',
+  textMuted:  'rgba(255,255,255,0.35)',
+};
+
 function useDimensions() {
   const [w, setW] = useState(() => Dimensions.get('window').width);
   useEffect(() => {
@@ -58,66 +72,81 @@ function makeStyles(C: typeof DarkColors) {
       left: 0,
       bottom: 0,
       width: WEB_SIDEBAR_WIDTH,
-      backgroundColor: C.surface,
+      backgroundColor: KB.navy,
       borderRightWidth: 1,
-      borderRightColor: C.border,
+      borderRightColor: KB.navyBorder,
       flexDirection: 'column',
       zIndex: 100,
     },
     sidebarBrand: {
-      flexDirection: 'row',
+      flexDirection: 'column',
       alignItems: 'center',
-      gap: 10,
+      gap: 8,
       paddingHorizontal: Spacing.lg,
-      paddingVertical: Spacing.lg,
+      paddingTop: 24,
+      paddingBottom: 20,
       borderBottomWidth: 1,
-      borderBottomColor: C.border,
+      borderBottomColor: KB.navyBorder,
     },
     brandLogo: {
-      width: 34,
-      height: 34,
-      borderRadius: 10,
+      width: 56,
+      height: 56,
+      borderRadius: 14,
       overflow: 'hidden',
     },
+    brandNameRow: {
+      alignItems: 'center',
+      gap: 2,
+    },
     brandName: {
-      fontSize: Typography.fontSizes.md,
+      fontSize: 15,
       fontWeight: '800',
-      color: C.textPrimary,
+      color: KB.gold,
+      letterSpacing: 3,
+      includeFontPadding: false,
+    },
+    brandSub: {
+      fontSize: 9,
+      fontWeight: '500',
+      color: KB.textMuted,
+      letterSpacing: 1.5,
       includeFontPadding: false,
     },
     navList: {
       flex: 1,
       paddingTop: Spacing.md,
       paddingHorizontal: Spacing.sm,
-      gap: 4,
+      gap: 2,
     },
     navItem: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 12,
       paddingHorizontal: Spacing.md,
-      paddingVertical: 12,
+      paddingVertical: 11,
       borderRadius: Radius.lg,
       minHeight: 44,
     },
     navItemActive: {
-      backgroundColor: C.primarySoft,
+      backgroundColor: KB.goldSoft,
+      borderLeftWidth: 2,
+      borderLeftColor: KB.gold,
     },
     navLabel: {
       fontSize: Typography.fontSizes.sm,
       fontWeight: '500',
-      color: C.textMuted,
+      color: KB.textMuted,
       includeFontPadding: false,
     },
     navLabelActive: {
-      color: C.primary,
+      color: KB.gold,
       fontWeight: '700',
     },
     sidebarFooter: {
       paddingHorizontal: Spacing.lg,
       paddingVertical: Spacing.lg,
       borderTopWidth: 1,
-      borderTopColor: C.border,
+      borderTopColor: KB.navyBorder,
       gap: Spacing.sm,
     },
     userRow: {
@@ -129,23 +158,23 @@ function makeStyles(C: typeof DarkColors) {
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: C.primarySoft,
+      backgroundColor: KB.goldSoft,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
-      borderColor: C.primary + '40',
+      borderColor: KB.gold + '50',
     },
     userAvatarText: {
       fontSize: 13,
       fontWeight: '800',
-      color: C.primary,
+      color: KB.gold,
       includeFontPadding: false,
     },
     userName: {
       flex: 1,
       fontSize: Typography.fontSizes.xs,
       fontWeight: '600',
-      color: C.textSecondary,
+      color: KB.textSub,
       includeFontPadding: false,
     },
     mainContent: {
@@ -166,9 +195,9 @@ function makeStyles(C: typeof DarkColors) {
       zIndex: 0,
     },
     bgImage: {
-      width: '70%' as any,
-      height: '70%' as any,
-      opacity: 0.07,
+      width: '50%' as any,
+      height: '50%' as any,
+      opacity: 0.04,
     },
   });
 }
@@ -203,12 +232,15 @@ export function WebSidebar({ children }: WebSidebarProps) {
         {/* Brand */}
         <View style={styles.sidebarBrand}>
           <Image
-            source={require('@/assets/moodprint-icon.png')}
+            source={require('@/assets/kairos-logo.jpg')}
             style={styles.brandLogo}
-            contentFit="cover"
+            contentFit="contain"
             transition={0}
           />
-          <Text style={styles.brandName}>MyMoodMapp</Text>
+          <View style={styles.brandNameRow}>
+            <Text style={styles.brandName}>KAIROS</Text>
+            <Text style={styles.brandSub}>A PRODUCT BY EWIG · MYMOODMAPP</Text>
+          </View>
         </View>
 
         {/* Navigation */}
@@ -228,13 +260,13 @@ export function WebSidebar({ children }: WebSidebarProps) {
                 <MaterialIcons
                   name={item.icon as any}
                   size={20}
-                  color={active ? C.primary : C.textMuted}
+                  color={active ? KB.gold : KB.textMuted}
                 />
                 <Text style={[styles.navLabel, active && styles.navLabelActive]}>
                   {item.label}
                 </Text>
                 {active ? (
-                  <View style={{ marginLeft: 'auto' as any, width: 6, height: 6, borderRadius: 3, backgroundColor: C.primary }} />
+                  <View style={{ marginLeft: 'auto' as any, width: 6, height: 6, borderRadius: 3, backgroundColor: KB.gold }} />
                 ) : null}
               </Pressable>
             );
@@ -256,7 +288,7 @@ export function WebSidebar({ children }: WebSidebarProps) {
               <Text style={styles.userName} numberOfLines={1}>
                 {user.username ?? user.email?.split('@')[0] ?? 'User'}
               </Text>
-              <MaterialIcons name="settings" size={16} color={C.textMuted} />
+              <MaterialIcons name="settings" size={16} color={KB.textMuted} />
             </Pressable>
           </View>
         ) : null}
