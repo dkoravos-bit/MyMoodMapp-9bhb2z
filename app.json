@@ -59,10 +59,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/moodprint-icon.png",
-      "meta": {
-        "apple-touch-icon": "./assets/moodprint-icon.png"
-      }
+      "favicon": "./assets/kairos-logo.jpg"
     },
     "plugins": [
       [

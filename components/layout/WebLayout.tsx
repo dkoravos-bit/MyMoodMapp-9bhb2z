@@ -26,13 +26,15 @@ export const WEB_SIDEBAR_WIDTH = 220;
 export const WEB_MAX_CONTENT_WIDTH = 960;
 export const WEB_DESKTOP_BREAKPOINT = 1024;
 
-// Sidebar brand tokens
-const SB = {
-  bg:         '#0A0A14',
-  bgLight:    '#12121E',
-  border:     'rgba(255,255,255,0.08)',
-  primary:    '#F5A623',
-  primarySoft:'rgba(245,166,35,0.12)',
+// KAIROS brand tokens
+const KB = {
+  navy:       '#0D1520',
+  navyLight:  '#131E2E',
+  navyBorder: 'rgba(201,160,85,0.18)',
+  gold:       '#C9A055',
+  goldSoft:   'rgba(201,160,85,0.12)',
+  teal:       '#45C4A8',
+  tealSoft:   'rgba(69,196,168,0.12)',
   text:       '#FFFFFF',
   textSub:    'rgba(255,255,255,0.65)',
   textMuted:  'rgba(255,255,255,0.35)',
@@ -70,9 +72,9 @@ function makeStyles(C: typeof DarkColors) {
       left: 0,
       bottom: 0,
       width: WEB_SIDEBAR_WIDTH,
-      backgroundColor: SB.bg,
+      backgroundColor: KB.navy,
       borderRightWidth: 1,
-      borderRightColor: SB.border,
+      borderRightColor: KB.navyBorder,
       flexDirection: 'column',
       zIndex: 100,
     },
@@ -84,11 +86,11 @@ function makeStyles(C: typeof DarkColors) {
       paddingTop: 24,
       paddingBottom: 20,
       borderBottomWidth: 1,
-      borderBottomColor: SB.border,
+      borderBottomColor: KB.navyBorder,
     },
     brandLogo: {
-      width: 52,
-      height: 52,
+      width: 56,
+      height: 56,
       borderRadius: 14,
       overflow: 'hidden',
     },
@@ -97,17 +99,17 @@ function makeStyles(C: typeof DarkColors) {
       gap: 2,
     },
     brandName: {
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: '800',
-      color: SB.text,
-      letterSpacing: 0.5,
+      color: KB.gold,
+      letterSpacing: 3,
       includeFontPadding: false,
     },
     brandSub: {
       fontSize: 9,
       fontWeight: '500',
-      color: SB.textMuted,
-      letterSpacing: 1,
+      color: KB.textMuted,
+      letterSpacing: 1.5,
       includeFontPadding: false,
     },
     navList: {
@@ -126,25 +128,25 @@ function makeStyles(C: typeof DarkColors) {
       minHeight: 44,
     },
     navItemActive: {
-      backgroundColor: SB.primarySoft,
+      backgroundColor: KB.goldSoft,
       borderLeftWidth: 2,
-      borderLeftColor: SB.primary,
+      borderLeftColor: KB.gold,
     },
     navLabel: {
       fontSize: Typography.fontSizes.sm,
       fontWeight: '500',
-      color: SB.textMuted,
+      color: KB.textMuted,
       includeFontPadding: false,
     },
     navLabelActive: {
-      color: SB.primary,
+      color: KB.gold,
       fontWeight: '700',
     },
     sidebarFooter: {
       paddingHorizontal: Spacing.lg,
       paddingVertical: Spacing.lg,
       borderTopWidth: 1,
-      borderTopColor: SB.border,
+      borderTopColor: KB.navyBorder,
       gap: Spacing.sm,
     },
     userRow: {
@@ -156,23 +158,23 @@ function makeStyles(C: typeof DarkColors) {
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: SB.primarySoft,
+      backgroundColor: KB.goldSoft,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
-      borderColor: SB.primary + '50',
+      borderColor: KB.gold + '50',
     },
     userAvatarText: {
       fontSize: 13,
       fontWeight: '800',
-      color: SB.primary,
+      color: KB.gold,
       includeFontPadding: false,
     },
     userName: {
       flex: 1,
       fontSize: Typography.fontSizes.xs,
       fontWeight: '600',
-      color: SB.textSub,
+      color: KB.textSub,
       includeFontPadding: false,
     },
     mainContent: {
@@ -230,14 +232,14 @@ export function WebSidebar({ children }: WebSidebarProps) {
         {/* Brand */}
         <View style={styles.sidebarBrand}>
           <Image
-            source={require('@/assets/moodprint-icon.png')}
+            source={require('@/assets/kairos-logo.jpg')}
             style={styles.brandLogo}
             contentFit="contain"
             transition={0}
           />
           <View style={styles.brandNameRow}>
-            <Text style={styles.brandName}>MyMoodMapp</Text>
-            <Text style={styles.brandSub}>YOUR EMOTIONAL LANDSCAPE</Text>
+            <Text style={styles.brandName}>KAIROS</Text>
+            <Text style={styles.brandSub}>A PRODUCT BY EWIG · MYMOODMAPP</Text>
           </View>
         </View>
 
@@ -264,7 +266,7 @@ export function WebSidebar({ children }: WebSidebarProps) {
                   {item.label}
                 </Text>
                 {active ? (
-                  <View style={{ marginLeft: 'auto' as any, width: 6, height: 6, borderRadius: 3, backgroundColor: SB.primary }} />
+                  <View style={{ marginLeft: 'auto' as any, width: 6, height: 6, borderRadius: 3, backgroundColor: KB.gold }} />
                 ) : null}
               </Pressable>
             );
@@ -286,7 +288,7 @@ export function WebSidebar({ children }: WebSidebarProps) {
               <Text style={styles.userName} numberOfLines={1}>
                 {user.username ?? user.email?.split('@')[0] ?? 'User'}
               </Text>
-              <MaterialIcons name="settings" size={16} color={SB.textMuted} />
+              <MaterialIcons name="settings" size={16} color={KB.textMuted} />
             </Pressable>
           </View>
         ) : null}
