@@ -202,56 +202,36 @@ export default function LandingScreen() {
         <Animated.View style={[s.hero, {
           width: '100%',
           opacity: heroFade,
-          minHeight: isDesktop ? 880 : isMobile ? 560 : 760,
-          paddingVertical: isMobile ? 44 : 96,
-          paddingHorizontal: hPad,
+          minHeight: isDesktop ? 880 : isMobile ? 'auto' : 760,
+          paddingVertical: isMobile ? 0 : 96,
+          paddingHorizontal: isMobile ? 0 : hPad,
         }]}>
           <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#020208' }]} />
           <View style={{ position: 'absolute', top: -200, left: '12%', width: 800, height: 800, borderRadius: 400, backgroundColor: 'rgba(94,92,230,0.10)', zIndex: 0 }} />
           <View style={{ position: 'absolute', bottom: -160, right: '5%', width: 640, height: 640, borderRadius: 320, backgroundColor: 'rgba(245,166,35,0.09)', zIndex: 0 }} />
           <View style={{ position: 'absolute', top: '40%', left: '-10%', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(50,212,192,0.07)', zIndex: 0 }} />
 
-          <View style={[s.heroContent, {
-            width: isDesktop ? Math.min(w - 48, 1360) : '100%',
-            flexDirection: isDesktop ? 'row' : 'column',
-            alignItems: 'center',
-            zIndex: 1,
-            gap: isDesktop ? 0 : isMobile ? 28 : 48,
-          }]}>
-            {/* ── Copy ─────────────────────────────────────────────────── */}
-            <View style={[s.heroCopy, {
-              flex: isDesktop ? 1 : undefined,
-              alignItems: isDesktop ? 'flex-start' : 'center',
-              paddingRight: isDesktop ? 24 : 0,
-              width: isMobile ? '100%' : undefined,
-              gap: isMobile ? 14 : 22,
-            }]}>
-              <View style={[s.heroBadge, { alignSelf: isDesktop ? 'flex-start' : 'center' }]}>
-                <MaterialIcons name="auto-awesome" size={12} color={C.primary} />
-                <Text style={[s.heroBadgeText, isMobile && { fontSize: 10 }]}>
-                  {isMobile ? 'AI-Powered Wellbeing' : 'AI-Powered Wellbeing Intelligence'}
-                </Text>
+          {/* ── MOBILE layout: card top, buttons below ───────────────── */}
+          {isMobile ? (
+            <View style={{ width: '100%', zIndex: 1 }}>
+              {/* Full-width hero card — no margins, edge to edge */}
+              <View style={{
+                shadowColor: C.primary,
+                shadowOffset: { width: 0, height: 16 },
+                shadowOpacity: 0.4,
+                shadowRadius: 32,
+                elevation: 24,
+              }}>
+                <Image
+                  source={HERO_CARD}
+                  style={{ width: w, aspectRatio: 1150 / 600 }}
+                  contentFit="cover"
+                  transition={300}
+                />
               </View>
-              <Text style={[s.heroTitle, {
-                textAlign: isDesktop ? 'left' : 'center',
-                fontSize: isDesktop ? 66 : isMobile ? 28 : 52,
-                lineHeight: isDesktop ? 76 : isMobile ? 36 : 60,
-              }]}>
-                Know your vibe.{'\n'}<Text style={{ color: C.primary }}>Understand yourself.</Text>
-              </Text>
-              <Text style={[s.heroSub, {
-                textAlign: isDesktop ? 'left' : 'center',
-                fontSize: isMobile ? 14 : 17,
-                lineHeight: isMobile ? 21 : 26,
-              }]}>
-                {isMobile
-                  ? 'AI mood tracking, health insights, soundscapes and more — in one app.'
-                  : 'MyMoodMapp fuses mood logging, AI insights, fitness data, weather, astrology, cycle tracking and healing soundscapes into one intelligent wellbeing picture.'}
-              </Text>
-
-              {/* Mobile: stacked full-width buttons */}
-              {isMobile ? (
-                <View style={{ width: '100%', gap: 10 }}>
+              {/* Buttons + trust below card */}
+              <View style={{ paddingHorizontal: hPad, paddingTop: 24, paddingBottom: 32, gap: 14 }}>
+                <View style={{ gap: 10 }}>
                   <Pressable onPress={() => router.push('/login')} style={({ pressed }) => [s.heroMainBtn, { width: '100%', justifyContent: 'center' }, pressed && { opacity: 0.85 }]}>
                     <MaterialIcons name="language" size={18} color="#000" />
                     <Text style={s.heroMainBtnText}>Use Web App — Free</Text>
@@ -267,7 +247,43 @@ export default function LandingScreen() {
                     </Pressable>
                   </View>
                 </View>
-              ) : (
+                <View style={[s.heroTrust, { justifyContent: 'center' }]}>
+                  {['✓ 30 days free', '✓ No card', '✓ iOS · Android · Web'].map(t => (
+                    <Text key={t} style={[s.heroTrustItem, { fontSize: 11 }]}>{t}</Text>
+                  ))}
+                </View>
+              </View>
+            </View>
+          ) : (
+            /* ── DESKTOP / TABLET layout ──────────────────────────────── */
+            <View style={[s.heroContent, {
+              width: isDesktop ? Math.min(w - 48, 1360) : '100%',
+              flexDirection: isDesktop ? 'row' : 'column',
+              alignItems: 'center',
+              zIndex: 1,
+              gap: isDesktop ? 0 : 48,
+            }]}>
+              {/* ── Copy */}
+              <View style={[s.heroCopy, {
+                flex: isDesktop ? 1 : undefined,
+                alignItems: isDesktop ? 'flex-start' : 'center',
+                paddingRight: isDesktop ? 24 : 0,
+                gap: 22,
+              }]}>
+                <View style={[s.heroBadge, { alignSelf: isDesktop ? 'flex-start' : 'center' }]}>
+                  <MaterialIcons name="auto-awesome" size={12} color={C.primary} />
+                  <Text style={s.heroBadgeText}>AI-Powered Wellbeing Intelligence</Text>
+                </View>
+                <Text style={[s.heroTitle, {
+                  textAlign: isDesktop ? 'left' : 'center',
+                  fontSize: isDesktop ? 66 : 52,
+                  lineHeight: isDesktop ? 76 : 60,
+                }]}>
+                  Know your vibe.{'\n'}<Text style={{ color: C.primary }}>Understand yourself.</Text>
+                </Text>
+                <Text style={[s.heroSub, { textAlign: isDesktop ? 'left' : 'center' }]}>
+                  MyMoodMapp fuses mood logging, AI insights, fitness data, weather, astrology, cycle tracking and healing soundscapes into one intelligent wellbeing picture.
+                </Text>
                 <View style={[s.heroBtns, { justifyContent: isDesktop ? 'flex-start' : 'center' }]}>
                   <Pressable onPress={() => router.push('/login')} style={({ pressed }) => [s.heroMainBtn, pressed && { opacity: 0.85 }]}>
                     <MaterialIcons name="language" size={18} color="#000" />
@@ -282,84 +298,58 @@ export default function LandingScreen() {
                     <Text style={[s.heroGhostBtnText, { color: C.teal }]}>Google Play</Text>
                   </Pressable>
                 </View>
+                <View style={[s.heroTrust, { justifyContent: isDesktop ? 'flex-start' : 'center' }]}>
+                  {['✓ 30-day free trial', '✓ No credit card', '✓ Web + iOS + Android', '✓ Cancel anytime'].map(t => (
+                    <Text key={t} style={s.heroTrustItem}>{t}</Text>
+                  ))}
+                </View>
+              </View>
+
+              {/* Desktop hero card */}
+              {isDesktop && (
+                <View style={{ flex: 1.15, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{
+                    shadowColor: C.primary,
+                    shadowOffset: { width: 0, height: 32 },
+                    shadowOpacity: 0.45,
+                    shadowRadius: 64,
+                    elevation: 40,
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                  }}>
+                    <Image
+                      source={HERO_CARD}
+                      style={{ width: Math.min(w * 0.46, 600), aspectRatio: 1150 / 600, borderRadius: 20 }}
+                      contentFit="cover"
+                      transition={400}
+                    />
+                  </View>
+                </View>
               )}
 
-              <View style={[s.heroTrust, { justifyContent: isDesktop ? 'flex-start' : 'center' }]}>
-                {(isMobile
-                  ? ['✓ 30 days free', '✓ No card', '✓ iOS · Android · Web']
-                  : ['✓ 30-day free trial', '✓ No credit card', '✓ Web + iOS + Android', '✓ Cancel anytime']
-                ).map(t => (
-                  <Text key={t} style={[s.heroTrustItem, isMobile && { fontSize: 11 }]}>{t}</Text>
-                ))}
-              </View>
+              {/* Tablet hero card */}
+              {!isDesktop && (
+                <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{
+                    shadowColor: C.primary,
+                    shadowOffset: { width: 0, height: 24 },
+                    shadowOpacity: 0.40,
+                    shadowRadius: 48,
+                    elevation: 32,
+                    borderRadius: 16,
+                    overflow: 'hidden',
+                  }}>
+                    <Image
+                      source={HERO_CARD}
+                      style={{ width: Math.min(w - 48, 640), aspectRatio: 1150 / 600, borderRadius: 16 }}
+                      contentFit="cover"
+                      transition={400}
+                    />
+                  </View>
+                </View>
+              )}
             </View>
-
-            {/* Desktop hero card */}
-            {isDesktop && (
-              <View style={{ flex: 1.15, alignItems: 'center', justifyContent: 'center' }}>
-                <View style={{
-                  shadowColor: C.primary,
-                  shadowOffset: { width: 0, height: 32 },
-                  shadowOpacity: 0.45,
-                  shadowRadius: 64,
-                  elevation: 40,
-                  borderRadius: 20,
-                  overflow: 'hidden',
-                }}>
-                  <Image
-                    source={HERO_CARD}
-                    style={{ width: Math.min(w * 0.46, 600), aspectRatio: 1150 / 600, borderRadius: 20 }}
-                    contentFit="cover"
-                    transition={400}
-                  />
-                </View>
-              </View>
-            )}
-
-            {/* Tablet hero card */}
-            {!isDesktop && !isMobile && (
-              <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                <View style={{
-                  shadowColor: C.primary,
-                  shadowOffset: { width: 0, height: 24 },
-                  shadowOpacity: 0.40,
-                  shadowRadius: 48,
-                  elevation: 32,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                }}>
-                  <Image
-                    source={HERO_CARD}
-                    style={{ width: Math.min(w - 48, 640), aspectRatio: 1150 / 600, borderRadius: 16 }}
-                    contentFit="cover"
-                    transition={400}
-                  />
-                </View>
-              </View>
-            )}
-
-            {/* Mobile hero card */}
-            {isMobile && (
-              <View style={{ alignItems: 'center', width: '100%' }}>
-                <View style={{
-                  shadowColor: C.primary,
-                  shadowOffset: { width: 0, height: 16 },
-                  shadowOpacity: 0.35,
-                  shadowRadius: 32,
-                  elevation: 24,
-                  borderRadius: 14,
-                  overflow: 'hidden',
-                }}>
-                  <Image
-                    source={HERO_CARD}
-                    style={{ width: Math.min(w - 8, 480), aspectRatio: 1150 / 600, borderRadius: 14 }}
-                    contentFit="cover"
-                    transition={300}
-                  />
-                </View>
-              </View>
-            )}
-          </View>
+          )}
         </Animated.View>
 
         {/* ═══ STATS BAR ═══════════════════════════════════════════════════ */}
