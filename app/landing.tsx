@@ -137,72 +137,168 @@ function SectionHead({ title, sub, isMobile }: { title: string; sub?: string; is
   );
 }
 
-// ─── Native Hero ─────────────────────────────────────────────────────────────
-function NativeHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onAppStore, onPlayStore }: any) {
-  // Phone mockup width
-  const phoneW = isMobile ? Math.min(w * 0.44, 170) : isTablet ? 200 : 240;
-  const phoneH = phoneW * (16 / 9);
+const HERO_CARD = require('@/assets/images/hero-card.jpg');
 
-  // Mini bar chart data
+// ─── Mobile Hero (full-bleed image hero matching website aesthetic) ───────────
+function MobileHero({ w, pad, onWeb, onAppStore, onPlayStore }: any) {
+  const heroH = Math.round(w * 0.72);
+  return (
+    <View style={{ width: '100%', backgroundColor: '#050508' }}>
+      {/* Full-bleed hero image with gradient overlays */}
+      <View style={{ width: '100%', height: heroH, overflow: 'hidden' }}>
+        <Image
+          source={HERO_CARD}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+          contentPosition="center"
+          transition={300}
+        />
+        {/* Dark gradient from bottom so text below reads cleanly */}
+        <LinearGradient
+          colors={['transparent', 'rgba(5,5,8,0.55)', '#050508']}
+          start={{ x: 0, y: 0.5 }} end={{ x: 0, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+          pointerEvents="none"
+        />
+        {/* Left-edge dark fade for text legibility */}
+        <LinearGradient
+          colors={['rgba(5,5,8,0.55)', 'transparent']}
+          start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 0 }}
+          style={StyleSheet.absoluteFillObject}
+          pointerEvents="none"
+        />
+        {/* Overlay headline ON the image */}
+        <View style={{
+          position: 'absolute', bottom: 20, left: pad, right: pad,
+        }}>
+          <View style={{
+            flexDirection: 'row', alignItems: 'center', gap: 6,
+            alignSelf: 'flex-start', marginBottom: 8,
+            backgroundColor: 'rgba(245,166,35,0.15)',
+            borderRadius: 99, borderWidth: 1, borderColor: 'rgba(245,166,35,0.35)',
+            paddingHorizontal: 10, paddingVertical: 4,
+          }}>
+            <MaterialIcons name="auto-awesome" size={10} color={C.primary} />
+            <Text style={{ fontSize: 10, fontWeight: '700', color: C.primary, letterSpacing: 0.3, includeFontPadding: false }}>AI-Powered Wellbeing Intelligence</Text>
+          </View>
+          <Text style={{ fontSize: 30, fontWeight: '900', color: C.white, lineHeight: 36, includeFontPadding: false, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 }}>Know your vibe.</Text>
+          <Text style={{ fontSize: 30, fontWeight: '900', color: C.primary, lineHeight: 38, includeFontPadding: false, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 }}>Understand yourself.</Text>
+        </View>
+      </View>
+
+      {/* Below-image content */}
+      <View style={{ paddingHorizontal: pad, paddingTop: 20, paddingBottom: 28, gap: 16 }}>
+        {/* Subtitle */}
+        <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.70)', lineHeight: 22, includeFontPadding: false }}>
+          MyMoodMapp fuses mood logging, AI insights, fitness data, weather, astrology, cycle tracking and healing soundscapes into one intelligent wellbeing picture.
+        </Text>
+
+        {/* Feature pills */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
+          {['Mood Logging', 'Emotional Mapping', 'Healing Sounds', 'AI Insights', 'Cycle Tracking'].map(pill => (
+            <View key={pill} style={{
+              borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.07)',
+              borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+              paddingHorizontal: 10, paddingVertical: 5,
+            }}>
+              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.60)', fontWeight: '600', includeFontPadding: false }}>{pill}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Score widget */}
+        <View style={{
+          flexDirection: 'row', alignItems: 'center', gap: 12, alignSelf: 'flex-start',
+          backgroundColor: 'rgba(12,12,20,0.95)',
+          borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
+          paddingHorizontal: 14, paddingVertical: 12,
+        }}>
+          <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(245,166,35,0.18)', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(245,166,35,0.40)' }}>
+            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: C.primary }} />
+          </View>
+          <View>
+            <Text style={{ fontSize: 24, fontWeight: '900', color: C.white, lineHeight: 28, includeFontPadding: false }}>74</Text>
+            <Text style={{ fontSize: 11, color: C.white35, fontWeight: '600', includeFontPadding: false }}>Good · Today</Text>
+          </View>
+          <View style={{ width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 2 }} />
+          <View style={{ gap: 5 }}>
+            {[{ l: 'Mind', v: 72, c: C.secondary }, { l: 'Energy', v: 80, c: C.teal }, { l: 'Body', v: 68, c: C.primary }].map(d => (
+              <View key={d.l} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: 10, color: C.white35, width: 38, includeFontPadding: false }}>{d.l}</Text>
+                <View style={{ width: 72, height: 4, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                  <View style={{ width: `${d.v}%` as any, height: '100%', backgroundColor: d.c, borderRadius: 2 }} />
+                </View>
+                <Text style={{ fontSize: 10, color: d.c, fontWeight: '700', width: 20, includeFontPadding: false }}>{d.v}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* CTAs */}
+        <View style={{ gap: 10 }}>
+          <Pressable onPress={onAppStore} style={({ pressed }) => [st.ctaPrimary, { justifyContent: 'center' }, pressed && { opacity: 0.88 }]}>
+            <MaterialIcons name="apple" size={20} color="#000" />
+            <Text style={st.ctaPrimaryText}>Download on App Store</Text>
+          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Pressable onPress={onPlayStore} style={({ pressed }) => [st.ctaGhost, { flex: 1, justifyContent: 'center', borderColor: C.teal + '55' }, pressed && { opacity: 0.75 }]}>
+              <MaterialIcons name="android" size={17} color={C.teal} />
+              <Text style={[st.ctaGhostText, { color: C.teal }]}>Google Play</Text>
+            </Pressable>
+            <Pressable onPress={onWeb} style={({ pressed }) => [st.ctaGhost, { flex: 1, justifyContent: 'center' }, pressed && { opacity: 0.75 }]}>
+              <MaterialIcons name="language" size={17} color={C.white} />
+              <Text style={st.ctaGhostText}>Web App</Text>
+            </Pressable>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap', justifyContent: 'center', paddingTop: 2 }}>
+            {['✓ 30-day free trial', '✓ No credit card', '✓ Cancel anytime'].map(t => (
+              <Text key={t} style={{ fontSize: 11, color: C.teal, fontWeight: '600', includeFontPadding: false }}>{t}</Text>
+            ))}
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+// ─── Desktop/Tablet Hero ──────────────────────────────────────────────────────
+function DesktopHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onAppStore, onPlayStore }: any) {
+  const phoneW = isTablet ? 200 : 240;
+  const phoneH = phoneW * (16 / 9);
   const bars = [38, 62, 45, 78, 55, 82, 70];
   const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const barMaxH = 36;
-  const barW = isMobile ? 9 : 11;
 
   return (
     <View style={{ width: '100%', backgroundColor: '#050508', overflow: 'hidden' }}>
-
-      {/* ── Background glow orbs ─── */}
+      {/* Subtle glow orbs — low opacity, no hard circles */}
       <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
-        {/* Deep teal glow — right */}
-        <View style={{
-          position: 'absolute', right: isMobile ? -80 : 0, top: isMobile ? 20 : -20,
-          width: isMobile ? 280 : 420, height: isMobile ? 280 : 420,
-          borderRadius: 999,
-          backgroundColor: 'rgba(45,212,192,0.07)',
-          // blur effect via nested semi-transparent views
-        }} />
-        <View style={{
-          position: 'absolute', right: isMobile ? -40 : 40, top: isMobile ? 40 : 0,
-          width: isMobile ? 200 : 300, height: isMobile ? 200 : 300,
-          borderRadius: 999,
-          backgroundColor: 'rgba(45,212,192,0.09)',
-        }} />
-        {/* Purple glow — left */}
-        <View style={{
-          position: 'absolute', left: isMobile ? -60 : -40, top: isMobile ? 60 : 40,
-          width: isMobile ? 200 : 320, height: isMobile ? 200 : 320,
-          borderRadius: 999,
-          backgroundColor: 'rgba(124,111,247,0.08)',
-        }} />
-        {/* Amber glow — bottom-centre */}
-        <View style={{
-          position: 'absolute',
-          left: isMobile ? w * 0.2 : w * 0.35,
-          bottom: isMobile ? 80 : 60,
-          width: isMobile ? 180 : 260,
-          height: isMobile ? 100 : 140,
-          borderRadius: 999,
-          backgroundColor: 'rgba(245,166,35,0.06)',
-        }} />
+        <LinearGradient
+          colors={['transparent', 'rgba(45,212,192,0.05)', 'transparent']}
+          start={{ x: 1, y: 0 }} end={{ x: 0.5, y: 1 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <LinearGradient
+          colors={['rgba(124,111,247,0.05)', 'transparent', 'transparent']}
+          start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 0.8 }}
+          style={StyleSheet.absoluteFillObject}
+        />
       </View>
 
-      {/* ── Main content row ─── */}
+      {/* Main content row */}
       <View style={{
-        flexDirection: isMobile ? 'column' : 'row',
-        alignItems: isMobile ? 'flex-start' : 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
         paddingHorizontal: pad,
-        paddingTop: isMobile ? 36 : 56,
-        paddingBottom: isMobile ? 28 : 48,
+        paddingTop: 56,
+        paddingBottom: 48,
         maxWidth: maxW,
         width: '100%',
         alignSelf: 'center',
-        gap: isMobile ? 32 : 48,
+        gap: 48,
       }}>
-
         {/* LEFT — copy */}
-        <View style={{ flex: isMobile ? undefined : 1, gap: isMobile ? 14 : 18 }}>
-          {/* AI badge */}
+        <View style={{ flex: 1, gap: 18 }}>
           <View style={{
             flexDirection: 'row', alignItems: 'center', gap: 6,
             alignSelf: 'flex-start',
@@ -213,144 +309,61 @@ function NativeHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onAppS
             <MaterialIcons name="auto-awesome" size={11} color={C.primary} />
             <Text style={{ fontSize: 11, fontWeight: '700', color: C.primary, letterSpacing: 0.4, includeFontPadding: false }}>AI-Powered Wellbeing Intelligence</Text>
           </View>
-
-          {/* Headline */}
           <View style={{ gap: 0 }}>
-            <Text style={{
-              fontSize: isMobile ? 34 : isTablet ? 44 : 56,
-              fontWeight: '900',
-              color: C.white,
-              lineHeight: isMobile ? 40 : isTablet ? 52 : 64,
-              includeFontPadding: false,
-            }}>Know your vibe.</Text>
-            <Text style={{
-              fontSize: isMobile ? 34 : isTablet ? 44 : 56,
-              fontWeight: '900',
-              color: C.primary,
-              lineHeight: isMobile ? 42 : isTablet ? 54 : 66,
-              includeFontPadding: false,
-            }}>Understand yourself.</Text>
+            <Text style={{ fontSize: isTablet ? 44 : 56, fontWeight: '900', color: C.white, lineHeight: isTablet ? 52 : 64, includeFontPadding: false }}>Know your vibe.</Text>
+            <Text style={{ fontSize: isTablet ? 44 : 56, fontWeight: '900', color: C.primary, lineHeight: isTablet ? 54 : 66, includeFontPadding: false }}>Understand yourself.</Text>
           </View>
-
-          {/* Sub */}
-          <Text style={{
-            fontSize: isMobile ? 14 : 16,
-            color: 'rgba(255,255,255,0.72)',
-            lineHeight: isMobile ? 22 : 26,
-            maxWidth: 480,
-            includeFontPadding: false,
-          }}>
-            MyMoodMapp fuses mood logging, AI insights, fitness data,{isMobile ? ' ' : '\n'}weather, astrology, cycle tracking and healing soundscapes{isMobile ? ' ' : '\n'}into one intelligent wellbeing picture.
+          <Text style={{ fontSize: 16, color: 'rgba(255,255,255,0.72)', lineHeight: 26, maxWidth: 480, includeFontPadding: false }}>
+            MyMoodMapp fuses mood logging, AI insights, fitness data,{`\n`}weather, astrology, cycle tracking and healing soundscapes{`\n`}into one intelligent wellbeing picture.
           </Text>
-
-          {/* Feature pills */}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {['Mood Logging', 'Emotional Mapping', 'Healing Sounds', 'AI Insights'].map(pill => (
-              <View key={pill} style={{
-                borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.06)',
-                borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
-                paddingHorizontal: 10, paddingVertical: 4,
-              }}>
+              <View key={pill} style={{ borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', paddingHorizontal: 10, paddingVertical: 4 }}>
                 <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: '600', includeFontPadding: false }}>{pill}</Text>
               </View>
             ))}
           </View>
-
           {/* Score widget */}
-          <View style={{
-            flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'flex-start',
-            backgroundColor: 'rgba(15,15,22,0.9)',
-            borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)',
-            paddingHorizontal: 14, paddingVertical: 10,
-          }}>
-            {/* Amber orb */}
-            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(245,166,35,0.15)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(245,166,35,0.30)' }}>
-              <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: C.primary, opacity: 0.9 }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, alignSelf: 'flex-start', backgroundColor: 'rgba(15,15,22,0.92)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)', paddingHorizontal: 14, paddingVertical: 12 }}>
+            <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(245,166,35,0.18)', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(245,166,35,0.38)' }}>
+              <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: C.primary }} />
             </View>
             <View>
-              <Text style={{ fontSize: 22, fontWeight: '900', color: C.white, lineHeight: 26, includeFontPadding: false }}>74</Text>
+              <Text style={{ fontSize: 26, fontWeight: '900', color: C.white, lineHeight: 30, includeFontPadding: false }}>74</Text>
               <Text style={{ fontSize: 11, color: C.white35, fontWeight: '600', includeFontPadding: false }}>Good</Text>
             </View>
-            <View style={{ width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 4 }} />
-            <View style={{ gap: 4 }}>
+            <View style={{ width: 1, height: 34, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 4 }} />
+            <View style={{ gap: 5 }}>
               {[{ l: 'Mind', v: 72, c: C.secondary }, { l: 'Energy', v: 80, c: C.teal }].map(d => (
                 <View key={d.l} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={{ fontSize: 10, color: C.white35, width: 36, includeFontPadding: false }}>{d.l}</Text>
-                  <View style={{ width: 60, height: 4, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                  <Text style={{ fontSize: 10, color: C.white35, width: 40, includeFontPadding: false }}>{d.l}</Text>
+                  <View style={{ width: 70, height: 4, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
                     <View style={{ width: `${d.v}%` as any, height: '100%', backgroundColor: d.c, borderRadius: 2 }} />
                   </View>
                 </View>
               ))}
             </View>
           </View>
-
-          {/* CTAs — mobile only inline here; desktop in dedicated strip below */}
-          {isMobile && (
-            <View style={{ gap: 10, width: '100%', marginTop: 4 }}>
-              <Pressable onPress={onWeb} style={({ pressed }) => [st.ctaPrimary, { justifyContent: 'center' }, pressed && { opacity: 0.88 }]}>
-                <MaterialIcons name="language" size={18} color="#000" />
-                <Text style={st.ctaPrimaryText}>Use Web App — Free</Text>
-              </Pressable>
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <Pressable onPress={onAppStore} style={({ pressed }) => [st.ctaGhost, { flex: 1, justifyContent: 'center' }, pressed && { opacity: 0.75 }]}>
-                  <MaterialIcons name="apple" size={17} color={C.white} />
-                  <Text style={st.ctaGhostText}>App Store</Text>
-                </Pressable>
-                <Pressable onPress={onPlayStore} style={({ pressed }) => [st.ctaGhost, { flex: 1, justifyContent: 'center', borderColor: C.teal + '55' }, pressed && { opacity: 0.75 }]}>
-                  <MaterialIcons name="android" size={17} color={C.teal} />
-                  <Text style={[st.ctaGhostText, { color: C.teal }]}>Google Play</Text>
-                </Pressable>
-              </View>
-              <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
-                {['✓ 30-day free trial', '✓ No credit card', '✓ Cancel anytime'].map(t => (
-                  <Text key={t} style={{ fontSize: 11, color: C.teal, fontWeight: '600', includeFontPadding: false }}>{t}</Text>
-                ))}
-              </View>
-            </View>
-          )}
         </View>
 
         {/* RIGHT — phone mockup */}
-        <View style={{ alignItems: 'center', position: 'relative' }}>
-          {/* Glow behind phone */}
-          <View style={{
-            position: 'absolute', top: '10%', left: '10%', right: '10%', bottom: '10%',
-            borderRadius: 999,
-            backgroundColor: 'rgba(45,212,192,0.12)',
-          }} />
-
+        <View style={{ alignItems: 'center', position: 'relative', marginRight: isDesktop ? 40 : 0 }}>
           {/* Phone frame */}
           <View style={{
             width: phoneW, height: phoneH,
-            borderRadius: isMobile ? 28 : 36,
-            backgroundColor: '#080810',
+            borderRadius: 36, backgroundColor: '#080810',
             borderWidth: 2, borderColor: 'rgba(255,255,255,0.14)',
             overflow: 'hidden',
-            shadowColor: '#2DD4C0',
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.25,
-            shadowRadius: 32,
-            elevation: 20,
+            shadowColor: '#2DD4C0', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.22, shadowRadius: 40, elevation: 20,
           }}>
-            <Image
-              source={DARK_MAPP}
-              style={{ width: '100%', height: '100%' }}
-              contentFit="cover"
-              contentPosition="top"
-              transition={300}
-            />
+            <Image source={DARK_MAPP} style={{ width: '100%', height: '100%' }} contentFit="cover" contentPosition="top" transition={300} />
           </View>
-
-          {/* Floating score badge */}
+          {/* Floating score badge — desktop only, positioned safely */}
           <View style={{
-            position: 'absolute',
-            bottom: isMobile ? 28 : 36,
-            left: isMobile ? -14 : -28,
-            backgroundColor: 'rgba(8,8,18,0.92)',
-            borderRadius: 12,
-            borderWidth: 1, borderColor: 'rgba(245,166,35,0.25)',
-            padding: 10,
-            alignItems: 'center',
+            position: 'absolute', bottom: 40, left: -36,
+            backgroundColor: 'rgba(8,8,18,0.94)',
+            borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,166,35,0.25)',
+            padding: 10, alignItems: 'center',
             shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
           }}>
             <Text style={{ fontSize: 20, fontWeight: '900', color: C.white, lineHeight: 24, includeFontPadding: false }}>74</Text>
@@ -363,102 +376,69 @@ function NativeHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onAppS
               ))}
             </View>
           </View>
-
-          {/* Floating mini log widget */}
-          {!isMobile && (
-            <View style={{
-              position: 'absolute', top: 24, right: -40,
-              backgroundColor: 'rgba(8,8,18,0.90)',
-              borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)',
-              padding: 10, gap: 4, minWidth: 130,
-              shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
-            }}>
-              <Text style={{ fontSize: 9, fontWeight: '700', color: C.white35, letterSpacing: 0.8, includeFontPadding: false }}>LOG ENTRY</Text>
-              {[{ l: 'God', v: '4.6%', c: C.teal }, { l: 'Gay Miry', v: '24.2%', c: C.primary }, { l: 'App Entry', v: '', c: C.white35 }].map((row, i) => (
-                <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                  <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: row.c }} />
-                  <Text style={{ fontSize: 10, color: C.white60, flex: 1, includeFontPadding: false }}>{row.l}</Text>
-                  {row.v ? <Text style={{ fontSize: 10, color: row.c, fontWeight: '700', includeFontPadding: false }}>{row.v}</Text> : <MaterialIcons name="chevron-right" size={12} color={C.white35} />}
-                </View>
-              ))}
-            </View>
-          )}
+          {/* Floating log widget */}
+          <View style={{
+            position: 'absolute', top: 24, right: -44,
+            backgroundColor: 'rgba(8,8,18,0.92)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.09)',
+            padding: 11, gap: 5, minWidth: 136,
+            shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
+          }}>
+            <Text style={{ fontSize: 9, fontWeight: '700', color: C.white35, letterSpacing: 0.8, includeFontPadding: false }}>TODAY'S LOG</Text>
+            {[{ l: 'Mood Score', v: '74', c: C.primary }, { l: 'Sleep', v: '7.2h', c: C.teal }, { l: 'Steps', v: '8,412', c: C.secondary }].map((row, idx) => (
+              <View key={idx} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: row.c }} />
+                <Text style={{ fontSize: 10, color: C.white60, flex: 1, includeFontPadding: false }}>{row.l}</Text>
+                <Text style={{ fontSize: 10, color: row.c, fontWeight: '700', includeFontPadding: false }}>{row.v}</Text>
+              </View>
+            ))}
+          </View>
         </View>
       </View>
 
-      {/* ── Mini dashboard widgets row ─── */}
-      <View style={{
-        width: '100%', paddingHorizontal: pad,
-        paddingBottom: isMobile ? 28 : 36,
-        maxWidth: maxW, alignSelf: 'center',
-      }}>
-        <View style={{ flexDirection: 'row', gap: isMobile ? 8 : 12 }}>
-
-          {/* 7-Day Trends card */}
-          <View style={{
-            flex: 1,
-            backgroundColor: 'rgba(12,12,20,0.95)',
-            borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
-            padding: isMobile ? 10 : 14,
-          }}>
+      {/* Mini dashboard widgets row */}
+      <View style={{ width: '100%', paddingHorizontal: pad, paddingBottom: 36, maxWidth: maxW, alignSelf: 'center' }}>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          {/* 7-Day Trends */}
+          <View style={{ flex: 1, backgroundColor: 'rgba(12,12,20,0.95)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', padding: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <Text style={{ fontSize: 11, fontWeight: '700', color: C.white, includeFontPadding: false }}>7-Day Trends</Text>
               <View style={{ backgroundColor: 'rgba(245,166,35,0.12)', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 }}>
                 <Text style={{ fontSize: 9, color: C.primary, fontWeight: '700', includeFontPadding: false }}>Patterns</Text>
               </View>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: isMobile ? 3 : 4, height: barMaxH + 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, height: barMaxH + 14 }}>
               {bars.map((h, i) => (
                 <View key={i} style={{ flex: 1, alignItems: 'center', gap: 3 }}>
-                  <View style={{
-                    width: '100%', height: Math.round(h / 100 * barMaxH),
-                    backgroundColor: i === 6 ? C.primary : i === 5 ? C.secondary : 'rgba(255,255,255,0.18)',
-                    borderRadius: 3,
-                  }} />
+                  <View style={{ width: '100%', height: Math.round(h / 100 * barMaxH), backgroundColor: i === 6 ? C.primary : i === 5 ? C.secondary : 'rgba(255,255,255,0.18)', borderRadius: 3 }} />
                   <Text style={{ fontSize: 8, color: C.white35, includeFontPadding: false }}>{days[i]}</Text>
                 </View>
               ))}
             </View>
           </View>
-
-          {/* Log Entry card */}
-          <View style={{
-            flex: 1,
-            backgroundColor: 'rgba(12,12,20,0.95)',
-            borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
-            padding: isMobile ? 10 : 14,
-          }}>
+          {/* Today's Log */}
+          <View style={{ flex: 1, backgroundColor: 'rgba(12,12,20,0.95)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', padding: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: C.white, includeFontPadding: false }}>Log Entry</Text>
-              <MaterialIcons name="chevron-right" size={14} color={C.white35} />
+              <Text style={{ fontSize: 11, fontWeight: '700', color: C.white, includeFontPadding: false }}>Today's Log</Text>
+              <MaterialIcons name="check-circle" size={14} color={C.green} />
             </View>
-            {[{ l: 'God', v: '4.6%', c: C.teal }, { l: 'Gay Miry', v: '24.2%', c: C.primary }, { l: 'App Entry', v: '', c: C.white35 }, { l: 'Mood Lab', v: '', c: C.white35 }].map((row, i) => (
+            {[{ l: 'Mood Score', v: '74', c: C.primary }, { l: 'Sleep Quality', v: 'Good', c: C.teal }, { l: 'Active Mins', v: '42', c: C.secondary }, { l: 'Streak', v: '12d', c: '#F472B6' }].map((row, i) => (
               <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                  <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: row.v ? row.c : 'rgba(255,255,255,0.15)' }} />
-                  <Text style={{ fontSize: isMobile ? 10 : 11, color: C.white60, includeFontPadding: false }}>{row.l}</Text>
+                  <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: row.c }} />
+                  <Text style={{ fontSize: 11, color: C.white60, includeFontPadding: false }}>{row.l}</Text>
                 </View>
-                {row.v
-                  ? <Text style={{ fontSize: isMobile ? 10 : 11, color: row.c, fontWeight: '700', includeFontPadding: false }}>{row.v}</Text>
-                  : <MaterialIcons name="chevron-right" size={10} color={C.white35} />}
+                <Text style={{ fontSize: 11, color: row.c, fontWeight: '700', includeFontPadding: false }}>{row.v}</Text>
               </View>
             ))}
           </View>
-
           {/* Score card */}
-          <View style={{
-            width: isMobile ? 90 : 110,
-            backgroundColor: 'rgba(12,12,20,0.95)',
-            borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
-            padding: isMobile ? 10 : 14,
-            alignItems: 'center', justifyContent: 'center', gap: 4,
-          }}>
-            <Text style={{ fontSize: isMobile ? 24 : 30, fontWeight: '900', color: C.white, includeFontPadding: false }}>74</Text>
+          <View style={{ width: 110, backgroundColor: 'rgba(12,12,20,0.95)', borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', padding: 14, alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+            <Text style={{ fontSize: 32, fontWeight: '900', color: C.white, includeFontPadding: false }}>74</Text>
             <Text style={{ fontSize: 9, fontWeight: '800', color: C.primary, letterSpacing: 0.5, includeFontPadding: false }}>GOOD</Text>
             <View style={{ flexDirection: 'row', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
               {[{ l: 'Mind', c: C.secondary }, { l: 'Focus', c: C.teal }, { l: 'Body', c: C.primary }].map(d => (
                 <View key={d.l} style={{ backgroundColor: d.c + '20', borderRadius: 4, borderWidth: 1, borderColor: d.c + '45', paddingHorizontal: 4, paddingVertical: 2 }}>
-                  <Text style={{ fontSize: isMobile ? 7 : 8, fontWeight: '800', color: d.c, includeFontPadding: false }}>{d.l}</Text>
+                  <Text style={{ fontSize: 8, fontWeight: '800', color: d.c, includeFontPadding: false }}>{d.l}</Text>
                 </View>
               ))}
             </View>
@@ -466,40 +446,38 @@ function NativeHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onAppS
         </View>
       </View>
 
-      {/* ── Desktop CTAs ─── */}
-      {!isMobile && (
-        <View style={{ width: '100%', paddingHorizontal: pad, paddingBottom: 48, maxWidth: maxW, alignSelf: 'center' }}>
-          <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Pressable onPress={onWeb} style={({ pressed }) => [st.ctaPrimary, pressed && { opacity: 0.88 }]}>
-              <MaterialIcons name="language" size={18} color="#000" />
-              <Text style={st.ctaPrimaryText}>Use Web App — Free</Text>
-            </Pressable>
-            <Pressable onPress={onAppStore} style={({ pressed }) => [st.ctaGhost, pressed && { opacity: 0.75 }]}>
-              <MaterialIcons name="apple" size={18} color={C.white} />
-              <Text style={st.ctaGhostText}>App Store</Text>
-            </Pressable>
-            <Pressable onPress={onPlayStore} style={({ pressed }) => [st.ctaGhost, { borderColor: C.teal + '55' }, pressed && { opacity: 0.75 }]}>
-              <MaterialIcons name="android" size={18} color={C.teal} />
-              <Text style={[st.ctaGhostText, { color: C.teal }]}>Google Play</Text>
-            </Pressable>
-            <View style={{ flexDirection: 'row', gap: 16, marginLeft: 8, flexWrap: 'wrap' }}>
-              {['✓ 30-day free trial', '✓ No credit card', '✓ Cancel anytime'].map(t => (
-                <Text key={t} style={{ fontSize: 12, color: C.teal, fontWeight: '600', includeFontPadding: false }}>{t}</Text>
-              ))}
-            </View>
+      {/* Desktop CTAs */}
+      <View style={{ width: '100%', paddingHorizontal: pad, paddingBottom: 48, maxWidth: maxW, alignSelf: 'center' }}>
+        <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Pressable onPress={onWeb} style={({ pressed }) => [st.ctaPrimary, pressed && { opacity: 0.88 }]}>
+            <MaterialIcons name="language" size={18} color="#000" />
+            <Text style={st.ctaPrimaryText}>Use Web App — Free</Text>
+          </Pressable>
+          <Pressable onPress={onAppStore} style={({ pressed }) => [st.ctaGhost, pressed && { opacity: 0.75 }]}>
+            <MaterialIcons name="apple" size={18} color={C.white} />
+            <Text style={st.ctaGhostText}>App Store</Text>
+          </Pressable>
+          <Pressable onPress={onPlayStore} style={({ pressed }) => [st.ctaGhost, { borderColor: C.teal + '55' }, pressed && { opacity: 0.75 }]}>
+            <MaterialIcons name="android" size={18} color={C.teal} />
+            <Text style={[st.ctaGhostText, { color: C.teal }]}>Google Play</Text>
+          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 16, marginLeft: 8, flexWrap: 'wrap' }}>
+            {['✓ 30-day free trial', '✓ No credit card', '✓ Cancel anytime'].map(t => (
+              <Text key={t} style={{ fontSize: 12, color: C.teal, fontWeight: '600', includeFontPadding: false }}>{t}</Text>
+            ))}
           </View>
         </View>
-      )}
-
-      {/* Bottom edge fade into page */}
-      <LinearGradient
-        colors={['transparent', 'rgba(5,5,8,0.6)', '#050508']}
-        start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
-        style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40 }}
-        pointerEvents="none"
-      />
+      </View>
     </View>
   );
+}
+
+// ─── Hero dispatcher ──────────────────────────────────────────────────────────
+function NativeHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onAppStore, onPlayStore }: any) {
+  if (isMobile) {
+    return <MobileHero w={w} pad={pad} onWeb={onWeb} onAppStore={onAppStore} onPlayStore={onPlayStore} />;
+  }
+  return <DesktopHero w={w} isMobile={isMobile} isTablet={isTablet} isDesktop={isDesktop} pad={pad} maxW={maxW} onWeb={onWeb} onAppStore={onAppStore} onPlayStore={onPlayStore} />;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
