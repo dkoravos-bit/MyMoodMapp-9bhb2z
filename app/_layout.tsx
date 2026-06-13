@@ -78,6 +78,21 @@ import {
 
 // Inject global web styles for proper desktop layout
 if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  // Force the correct favicon — removes stale cached favicon.png from assets/images/
+  try {
+    const existing = document.querySelectorAll('link[rel*="icon"]');
+    existing.forEach((el: any) => el.parentNode?.removeChild(el));
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/png';
+    link.href = '/assets/moodprint-icon.png';
+    document.head.appendChild(link);
+    const apple = document.createElement('link');
+    apple.rel = 'apple-touch-icon';
+    apple.href = '/assets/moodprint-icon.png';
+    document.head.appendChild(apple);
+  } catch {}
+
   const style = document.createElement('style');
   style.textContent = `
     html, body, #root { height: 100%; margin: 0; padding: 0; }

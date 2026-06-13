@@ -59,7 +59,10 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/moodprint-icon.png"
+      "favicon": "./assets/moodprint-icon.png",
+      "meta": {
+        "apple-touch-icon": "./assets/moodprint-icon.png"
+      }
     },
     "plugins": [
       [
