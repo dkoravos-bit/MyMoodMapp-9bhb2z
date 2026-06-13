@@ -508,6 +508,7 @@ export default function LandingScreen() {
   const { w, isMobile, isTablet, isDesktop } = useLayout();
   const pad = isMobile ? 20 : isDesktop ? 48 : 32;
   const maxW = 1200;
+  const phoneW = isMobile ? Math.min(w * 0.44, 170) : isTablet ? 200 : 240;
 
   // Entrance fade
   const fade = useRef(new Animated.Value(0)).current;
