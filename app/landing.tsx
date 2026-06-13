@@ -124,6 +124,34 @@ const PRICING = [
   },
 ];
 
+// ─── Hero card with logo-area cover ──────────────────────────────────────────
+// The logo badge occupies roughly top 13% height × left 34% width of the image.
+// We paint a matching dark rectangle over it so the nav branding above is the
+// single source of truth. All content below the logo row is left fully visible.
+function HeroCardImage({ width, style }: { width: number | string; style?: any }) {
+  const imgStyle = typeof width === 'number'
+    ? { width, aspectRatio: 1150 / 600 }
+    : { width: width as any, aspectRatio: 1150 / 600 };
+
+  return (
+    <View style={[{ position: 'relative', overflow: 'hidden' }, style]}>
+      <Image source={HERO_CARD} style={imgStyle} contentFit="cover" transition={300} />
+      {/* Mask just the logo badge row — does NOT cover headline text below */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '34%',
+          height: '14%',
+          backgroundColor: '#06060e',
+        }}
+      />
+    </View>
+  );
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 export default function LandingScreen() {
   const router = useRouter();
@@ -136,9 +164,6 @@ export default function LandingScreen() {
   useEffect(() => {
     Animated.timing(heroFade, { toValue: 1, duration: 900, delay: 200, useNativeDriver: true }).start();
   }, []);
-
-  const laptopW = isDesktop ? Math.min(w * 0.50, 680) : Math.min(w - 48, 580);
-  const phoneW  = isDesktop ? Math.min(w * 0.14, 210) : isMobile ? Math.min(w * 0.62, 220) : Math.min(w * 0.22, 200);
 
   // Phone screenshot card width — narrower on mobile for thumb scroll
   const phoneThumbW = isMobile ? 160 : 220;
@@ -213,33 +238,18 @@ export default function LandingScreen() {
 
           {/* ── MOBILE layout: card top, buttons below ───────────────── */}
           {isMobile ? (
-            <View style={{ width: '100%', zIndex: 1 }}>
+            <View style={{ width: '100%', zIndex: 1, overflow: 'hidden' }}>
               {/* Full-width hero card — no margins, edge to edge */}
-              <View style={{
-                shadowColor: C.primary,
-                shadowOffset: { width: 0, height: 16 },
-                shadowOpacity: 0.4,
-                shadowRadius: 32,
-                elevation: 24,
-              }}>
-                <View style={{ position: 'relative' }}>
-                  <Image
-                    source={HERO_CARD}
-                    style={{ width: w, aspectRatio: 1150 / 600 }}
-                    contentFit="cover"
-                    transition={300}
-                  />
-                  {/* Cover the top-left logo/icon — already shown in nav above */}
-                  <View style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: w * 0.38,
-                    height: (w * (600 / 1150)) * 0.22,
-                    backgroundColor: '#06060e',
-                  }} />
-                </View>
-              </View>
+              <HeroCardImage
+                width={w}
+                style={{
+                  shadowColor: C.primary,
+                  shadowOffset: { width: 0, height: 16 },
+                  shadowOpacity: 0.4,
+                  shadowRadius: 32,
+                  elevation: 24,
+                }}
+              />
               {/* Buttons + trust below card */}
               <View style={{ paddingHorizontal: hPad, paddingTop: 24, paddingBottom: 32, gap: 14 }}>
                 <View style={{ gap: 10 }}>
@@ -328,24 +338,7 @@ export default function LandingScreen() {
                     borderRadius: 20,
                     overflow: 'hidden',
                   }}>
-                    <View style={{ position: 'relative' }}>
-                      <Image
-                        source={HERO_CARD}
-                        style={{ width: Math.min(w * 0.46, 600), aspectRatio: 1150 / 600 }}
-                        contentFit="cover"
-                        transition={400}
-                      />
-                      {/* Cover the top-left logo/icon — already shown in nav */}
-                      <View style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '36%',
-                        height: '22%',
-                        backgroundColor: '#06060e',
-                        borderBottomRightRadius: 8,
-                      }} />
-                    </View>
+                    <HeroCardImage width={Math.min(w * 0.46, 600)} />
                   </View>
                 </View>
               )}
@@ -362,24 +355,7 @@ export default function LandingScreen() {
                     borderRadius: 16,
                     overflow: 'hidden',
                   }}>
-                    <View style={{ position: 'relative' }}>
-                      <Image
-                        source={HERO_CARD}
-                        style={{ width: Math.min(w - 48, 640), aspectRatio: 1150 / 600 }}
-                        contentFit="cover"
-                        transition={400}
-                      />
-                      {/* Cover the top-left logo/icon — already shown in nav */}
-                      <View style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '36%',
-                        height: '22%',
-                        backgroundColor: '#06060e',
-                        borderBottomRightRadius: 8,
-                      }} />
-                    </View>
+                    <HeroCardImage width={Math.min(w - 48, 640)} />
                   </View>
                 </View>
               )}
