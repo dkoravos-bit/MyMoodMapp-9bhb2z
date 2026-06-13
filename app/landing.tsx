@@ -707,6 +707,56 @@ export default function LandingScreen() {
           </View>
         </View>
 
+        {/* ══════════════════════════ AI REPORTS SPOTLIGHT ════════════════ */}
+        <View style={[st.spotlight, { width: '100%', backgroundColor: '#06070E', paddingHorizontal: pad }]}>
+          <View style={[st.spotRow, { maxWidth: maxW, width: '100%', alignSelf: 'center', flexDirection: isDesktop ? 'row' : 'column' }]}>
+            {/* Copy */}
+            <View style={[st.spotCopy, { flex: isDesktop ? 1 : undefined, alignItems: isDesktop ? 'flex-start' : 'center' }]}>
+              <View style={[st.spotBadge, { borderColor: C.primary + '35', backgroundColor: C.primary + '12' }]}>
+                <MaterialIcons name="psychology" size={11} color={C.primary} />
+                <Text style={[st.spotBadgeText, { color: C.primary }]}>AI Reports</Text>
+              </View>
+              <Text style={[st.spotTitle, { textAlign: isDesktop ? 'left' : 'center', fontSize: isDesktop ? 36 : isMobile ? 22 : 28 }]}>
+                Reports that actually{`\n`}change behaviour.
+              </Text>
+              <Text style={[st.spotSub, { textAlign: isDesktop ? 'left' : 'center' }]}>
+                Your data patterns ranked by predicted impact. Five science-backed actions — ordered from critical to optional so you always know exactly where to start.
+              </Text>
+              <View style={{ gap: 10, width: '100%' }}>
+                {[
+                  { num: '#1', priority: 'Critical', color: '#FF4444',  icon: 'bedtime',         label: 'Sleep & Recovery',       sub: 'Highest-impact changes ranked first' },
+                  { num: '#2', priority: 'High',     color: C.primary,  icon: 'group',           label: 'Social Connection',      sub: 'Backed by your mood-social correlation' },
+                  { num: '#3', priority: 'Medium',   color: '#FFD166',  icon: 'self-improvement', label: 'Mindfulness Practice',  sub: 'Short sessions with measurable impact' },
+                  { num: '#4', priority: 'Standard', color: C.teal,     icon: 'lightbulb',       label: 'Lifestyle Optimisation', sub: 'Leverage your strongest data signals' },
+                  { num: '#5', priority: 'Optional', color: C.purple,   icon: 'eco',             label: 'Gentle Tune-ups',        sub: 'Low-effort, cumulative wellbeing gains' },
+                ].map((item, i) => (
+                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: item.color + '16', borderWidth: 1, borderColor: item.color + '35', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Text style={{ fontSize: 11, fontWeight: '900', color: item.color, includeFontPadding: false }}>{item.num}</Text>
+                      <Text style={{ fontSize: 8, fontWeight: '700', color: item.color, includeFontPadding: false }}>{item.priority}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 13, fontWeight: '700', color: C.white, includeFontPadding: false }}>{item.label}</Text>
+                      <Text style={{ fontSize: 11, color: C.white35, includeFontPadding: false, marginTop: 2 }}>{item.sub}</Text>
+                    </View>
+                    <MaterialIcons name={item.icon as any} size={16} color={item.color + 'AA'} />
+                  </View>
+                ))}
+              </View>
+            </View>
+            {/* Phone screenshot */}
+            <View style={[st.spotPhone, isMobile && { width: Math.min(w - pad * 2, 200) }]}>
+              <Image
+                source={require('@/assets/images/screenshot-behaviour-recommendations.jpg')}
+                style={{ width: '100%', aspectRatio: 9 / 16 }}
+                contentFit="cover"
+                contentPosition="top"
+                transition={300}
+              />
+            </View>
+          </View>
+        </View>
+
         {/* ══════════════════════════ THERAPIST ════════════════════════════ */}
         <View style={[st.section, { width: '100%', backgroundColor: '#08080E', paddingHorizontal: pad }]}>
           <View style={{ maxWidth: maxW, width: '100%', alignSelf: 'center' }}>
