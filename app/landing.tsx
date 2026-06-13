@@ -17,6 +17,7 @@ import {
   Animated,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -43,7 +44,6 @@ const C = {
 };
 
 const MOODPRINT_ICON = require('@/assets/moodprint-icon.png');
-const HERO_CARD = require('@/assets/images/hero-card.jpg');
 const APP_STORE_URL  = 'https://apps.apple.com/app/mymoodmapp/id000000000';
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.mymoodmapp';
 
@@ -55,6 +55,385 @@ function useLayout() {
     return () => sub?.remove();
   }, []);
   return { w, isMobile: w < 600, isTablet: w >= 600 && w < 1024, isDesktop: w >= 1024 };
+}
+
+// ─── Native Hero Card ─────────────────────────────────────────────────────────
+// Recreates the hero card aesthetics in pure React Native:
+// • Dark cosmic background with purple/teal/amber glow orbs
+// • Left: tagline text, score widget, feature pill row
+// • Right: phone frame with moodprint fingerprint art + neon wisps
+// • Bottom row: mini 7-day chart, log entry widget, score card, store CTAs
+function NativeHeroCard({ width, compact }: { width: number; compact?: boolean }) {
+  // Responsive scale — card is always 1150:600 ratio
+  const cardH = width * (600 / 1150);
+  const scale = width / 1150;
+
+  // Pulse animation for score orb
+  const pulse = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1.12, duration: 1600, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1.0,  duration: 1600, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  // Mini bar chart data (7-day mood)
+  const bars = [42, 58, 35, 72, 65, 80, 74];
+  const barColors = ['#5E5CE6', '#5E5CE6', '#5E5CE6', '#F5A623', '#F5A623', '#30D158', '#F5A623'];
+
+  const s16 = Math.max(8, Math.round(16 * scale));
+  const s14 = Math.max(7, Math.round(14 * scale));
+  const s12 = Math.max(6, Math.round(12 * scale));
+  const s11 = Math.max(5, Math.round(11 * scale));
+  const s10 = Math.max(5, Math.round(10 * scale));
+
+  return (
+    <View style={{ width, height: cardH, backgroundColor: '#06060E', borderRadius: compact ? 16 : 20, overflow: 'hidden', position: 'relative' }}>
+
+      {/* ── Background glow orbs ─────────────────────────────────────── */}
+      {/* Top-left purple nebula */}
+      <View pointerEvents="none" style={{
+        position: 'absolute', top: -width * 0.18, left: -width * 0.06,
+        width: width * 0.55, height: width * 0.55, borderRadius: width * 0.275,
+        backgroundColor: 'rgba(94,92,230,0.22)',
+      }} />
+      {/* Centre-right teal haze */}
+      <View pointerEvents="none" style={{
+        position: 'absolute', top: cardH * 0.15, right: -width * 0.04,
+        width: width * 0.52, height: width * 0.52, borderRadius: width * 0.26,
+        backgroundColor: 'rgba(50,212,192,0.12)',
+      }} />
+      {/* Bottom-left amber glow */}
+      <View pointerEvents="none" style={{
+        position: 'absolute', bottom: -cardH * 0.2, left: width * 0.05,
+        width: width * 0.38, height: width * 0.38, borderRadius: width * 0.19,
+        backgroundColor: 'rgba(245,166,35,0.14)',
+      }} />
+
+      {/* ── Subtle grid overlay ──────────────────────────────────────── */}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { opacity: 0.04 }]}>
+        {Array.from({ length: 8 }, (_, i) => (
+          <View key={i} style={{ position: 'absolute', left: 0, right: 0, top: (cardH / 7) * i, height: 1, backgroundColor: '#fff' }} />
+        ))}
+        {Array.from({ length: 14 }, (_, i) => (
+          <View key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: (width / 13) * i, width: 1, backgroundColor: '#fff' }} />
+        ))}
+      </View>
+
+      {/* ── LEFT COLUMN: text + score widget ─────────────────────────── */}
+      <View style={{
+        position: 'absolute', left: width * 0.04, top: cardH * 0.14,
+        width: width * 0.44, gap: Math.round(10 * scale),
+      }}>
+        {/* AI badge */}
+        <View style={{
+          flexDirection: 'row', alignItems: 'center', gap: Math.round(5 * scale),
+          backgroundColor: 'rgba(245,166,35,0.18)', borderRadius: 99,
+          paddingHorizontal: Math.round(10 * scale), paddingVertical: Math.round(4 * scale),
+          alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(245,166,35,0.35)',
+        }}>
+          <MaterialIcons name="auto-awesome" size={Math.max(8, Math.round(10 * scale))} color={C.primary} />
+          <Text style={{ fontSize: s10, fontWeight: '700', color: C.primary, includeFontPadding: false }}>
+            AI-Powered Wellbeing Intelligence
+          </Text>
+        </View>
+
+        {/* Headline */}
+        <Text style={{ fontSize: Math.max(14, Math.round(32 * scale)), fontWeight: '900', color: '#fff', lineHeight: Math.max(18, Math.round(38 * scale)), includeFontPadding: false }}>
+          Know your vibe.{'\n'}
+          <Text style={{ color: C.primary }}>Understand yourself.</Text>
+        </Text>
+
+        {/* Sub */}
+        <Text style={{ fontSize: s11, color: 'rgba(255,255,255,0.65)', lineHeight: Math.max(12, Math.round(16 * scale)), includeFontPadding: false }}>
+          Mood Logging{' · '}Emotional Mapping{' · '}Healing Sounds{' · '}Personalized Insights
+        </Text>
+
+        {/* Score widget */}
+        <View style={{
+          flexDirection: 'row', alignItems: 'center', gap: Math.round(12 * scale),
+          backgroundColor: 'rgba(10,10,20,0.88)', borderRadius: Math.round(14 * scale),
+          padding: Math.round(12 * scale), borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.10)', alignSelf: 'flex-start',
+          marginTop: Math.round(4 * scale),
+        }}>
+          {/* Glowing orb */}
+          <View style={{ alignItems: 'center', justifyContent: 'center', width: Math.round(40 * scale), height: Math.round(40 * scale) }}>
+            {/* Outer glow ring */}
+            <Animated.View style={{
+              position: 'absolute', width: Math.round(40 * scale), height: Math.round(40 * scale),
+              borderRadius: Math.round(20 * scale),
+              backgroundColor: 'rgba(245,166,35,0.18)',
+              transform: [{ scale: pulse }],
+            }} />
+            {/* Inner orb */}
+            <View style={{
+              width: Math.round(28 * scale), height: Math.round(28 * scale),
+              borderRadius: Math.round(14 * scale),
+              backgroundColor: C.primary,
+              shadowColor: C.primary, shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.9, shadowRadius: Math.round(12 * scale), elevation: 10,
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <MaterialIcons name="chevron-left" size={Math.max(8, Math.round(12 * scale))} color="#000" />
+            </View>
+          </View>
+          <View>
+            <Text style={{ fontSize: Math.max(18, Math.round(36 * scale)), fontWeight: '900', color: '#fff', lineHeight: Math.max(20, Math.round(38 * scale)), includeFontPadding: false }}>74</Text>
+            <Text style={{ fontSize: s11, color: 'rgba(255,255,255,0.55)', fontWeight: '600', includeFontPadding: false }}>Good</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ── RIGHT COLUMN: phone mockup with moodprint ────────────────── */}
+      <View style={{
+        position: 'absolute', right: width * 0.01, top: -cardH * 0.06,
+        width: width * 0.46, height: cardH * 1.14,
+        alignItems: 'center', justifyContent: 'flex-start',
+      }}>
+        {/* Phone frame */}
+        <View style={{
+          width: width * 0.32, height: cardH * 1.1,
+          backgroundColor: '#0A0A12', borderRadius: Math.round(32 * scale),
+          borderWidth: Math.max(1, Math.round(3 * scale)), borderColor: 'rgba(255,255,255,0.18)',
+          overflow: 'hidden', position: 'relative',
+          shadowColor: C.teal, shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.45, shadowRadius: Math.round(32 * scale), elevation: 16,
+        }}>
+          {/* Phone notch */}
+          <View style={{
+            position: 'absolute', top: 0, left: '50%', marginLeft: -Math.round(20 * scale),
+            width: Math.round(40 * scale), height: Math.round(12 * scale),
+            backgroundColor: '#0A0A12', borderBottomLeftRadius: Math.round(8 * scale),
+            borderBottomRightRadius: Math.round(8 * scale), zIndex: 10,
+          }} />
+
+          {/* Moodprint fingerprint image (CDN hosted) */}
+          <Image
+            source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/DB3YfdGqKwFTxrBSfaGMLH/dark_05_mapp.jpg' }}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
+            contentPosition="top"
+            transition={400}
+          />
+
+          {/* Teal glow overlay */}
+          <LinearGradient
+            colors={['transparent', 'rgba(50,212,192,0.08)', 'transparent']}
+            start={{ x: 0, y: 0.3 }}
+            end={{ x: 1, y: 0.7 }}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+
+          {/* Phone signal bar */}
+          <View style={{
+            position: 'absolute', top: Math.round(14 * scale), right: Math.round(12 * scale),
+            flexDirection: 'row', gap: Math.round(3 * scale), alignItems: 'flex-end',
+          }}>
+            {[4, 6, 8, 10].map((h, i) => (
+              <View key={i} style={{
+                width: Math.round(3 * scale), height: Math.round(h * scale),
+                backgroundColor: i < 3 ? '#fff' : 'rgba(255,255,255,0.3)', borderRadius: 1,
+              }} />
+            ))}
+          </View>
+          <View style={{
+            position: 'absolute', top: Math.round(14 * scale), right: Math.round(36 * scale),
+            width: Math.round(12 * scale), height: Math.round(7 * scale),
+            borderRadius: Math.round(2 * scale), borderWidth: 1, borderColor: '#fff',
+          }}>
+            <View style={{ width: '75%', height: '100%', backgroundColor: C.success, borderRadius: Math.round(1 * scale) }} />
+          </View>
+        </View>
+
+        {/* Floating neon wisps around the phone */}
+        {/* Top-right wisp */}
+        <View pointerEvents="none" style={{
+          position: 'absolute', top: cardH * 0.05, right: 0,
+          width: width * 0.18, height: width * 0.06, borderRadius: width * 0.03,
+          backgroundColor: 'rgba(50,212,192,0.25)',
+          transform: [{ rotate: '-25deg' }],
+        }} />
+        {/* Mid wisp */}
+        <View pointerEvents="none" style={{
+          position: 'absolute', top: cardH * 0.35, right: width * 0.02,
+          width: width * 0.12, height: width * 0.04, borderRadius: width * 0.02,
+          backgroundColor: 'rgba(94,92,230,0.35)',
+          transform: [{ rotate: '15deg' }],
+        }} />
+        {/* Bottom wisp */}
+        <View pointerEvents="none" style={{
+          position: 'absolute', bottom: cardH * 0.04, right: width * 0.04,
+          width: width * 0.15, height: width * 0.035, borderRadius: width * 0.018,
+          backgroundColor: 'rgba(245,166,35,0.3)',
+          transform: [{ rotate: '-10deg' }],
+        }} />
+      </View>
+
+      {/* ── BOTTOM WIDGETS ROW ───────────────────────────────────────── */}
+      <View style={{
+        position: 'absolute', bottom: cardH * 0.06,
+        left: width * 0.04, right: width * 0.52,
+        flexDirection: 'row', gap: Math.round(8 * scale), alignItems: 'flex-end',
+      }}>
+
+        {/* 7-Day Trends mini chart */}
+        <View style={{
+          flex: 1, backgroundColor: 'rgba(8,8,18,0.92)', borderRadius: Math.round(12 * scale),
+          padding: Math.round(10 * scale), borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
+          gap: Math.round(6 * scale),
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: s10, fontWeight: '700', color: '#fff', includeFontPadding: false }}>7-Day Trends</Text>
+            <Text style={{ fontSize: Math.max(4, Math.round(8 * scale)), color: C.primary, fontWeight: '600', includeFontPadding: false }}>Patterns</Text>
+          </View>
+          {/* Bar chart */}
+          <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: Math.round(3 * scale), height: Math.round(32 * scale) }}>
+            {bars.map((v, i) => (
+              <View key={i} style={{ flex: 1, height: (v / 100) * Math.round(32 * scale), borderRadius: Math.round(3 * scale), backgroundColor: barColors[i], opacity: i === 6 ? 1 : 0.65 }} />
+            ))}
+          </View>
+          {/* X-axis labels */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+              <Text key={i} style={{ fontSize: Math.max(4, Math.round(7 * scale)), color: 'rgba(255,255,255,0.3)', includeFontPadding: false, flex: 1, textAlign: 'center' }}>{d}</Text>
+            ))}
+          </View>
+        </View>
+
+        {/* Log Entry mini widget */}
+        <View style={{
+          flex: 1.1, backgroundColor: 'rgba(8,8,18,0.92)', borderRadius: Math.round(12 * scale),
+          padding: Math.round(10 * scale), borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
+          gap: Math.round(5 * scale),
+        }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: s10, fontWeight: '700', color: '#fff', includeFontPadding: false }}>Log Entry</Text>
+            <MaterialIcons name="chevron-right" size={Math.max(8, Math.round(12 * scale))} color="rgba(255,255,255,0.3)" />
+          </View>
+          {[
+            { icon: 'home',          label: 'God', sub: 'Awesome mood', val: '4.6/5', color: C.success },
+            { icon: 'psychology',    label: 'Gay Miry', sub: 'Ami risca totems', val: '24.2%', color: C.teal },
+            { icon: 'self-improvement', label: 'App Entry', sub: '', val: '', color: C.secondary },
+            { icon: 'music-note',    label: 'Mood Lab', sub: 'Meditation', val: '', color: '#A78BFA' },
+          ].map((item, i) => (
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: Math.round(5 * scale) }}>
+              <View style={{
+                width: Math.round(16 * scale), height: Math.round(16 * scale),
+                borderRadius: Math.round(5 * scale), backgroundColor: item.color + '22',
+                alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                <MaterialIcons name={item.icon as any} size={Math.max(5, Math.round(9 * scale))} color={item.color} />
+              </View>
+              <Text style={{ fontSize: Math.max(5, Math.round(9 * scale)), color: '#fff', fontWeight: '600', flex: 1, includeFontPadding: false }} numberOfLines={1}>{item.label}</Text>
+              {item.val ? <Text style={{ fontSize: Math.max(4, Math.round(8 * scale)), color: item.color, fontWeight: '700', includeFontPadding: false }}>{item.val}</Text> : null}
+              <MaterialIcons name="chevron-right" size={Math.max(6, Math.round(9 * scale))} color="rgba(255,255,255,0.2)" />
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* ── BOTTOM-RIGHT: Mood score card + Store CTAs ───────────────── */}
+      <View style={{
+        position: 'absolute', bottom: cardH * 0.06,
+        right: width * 0.04, width: width * 0.44,
+        flexDirection: 'row', gap: Math.round(8 * scale), alignItems: 'flex-end',
+      }}>
+
+        {/* Score card (74 GOOD with dimension tags) */}
+        <View style={{
+          flex: 1, backgroundColor: 'rgba(8,8,18,0.92)', borderRadius: Math.round(12 * scale),
+          padding: Math.round(10 * scale), borderWidth: 1, borderColor: 'rgba(94,92,230,0.25)',
+          alignItems: 'center', gap: Math.round(5 * scale),
+          overflow: 'hidden',
+        }}>
+          {/* Gradient background on score card */}
+          <LinearGradient
+            colors={['rgba(94,92,230,0.22)', 'rgba(50,212,192,0.15)', 'rgba(245,166,35,0.1)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+          {/* Rotated diamond frame */}
+          <View style={{
+            width: Math.round(44 * scale), height: Math.round(44 * scale),
+            borderRadius: Math.round(6 * scale), borderWidth: Math.max(1, Math.round(2 * scale)),
+            borderColor: 'rgba(255,255,255,0.25)', backgroundColor: 'rgba(94,92,230,0.18)',
+            transform: [{ rotate: '45deg' }], alignItems: 'center', justifyContent: 'center',
+          }}>
+            <View style={{ transform: [{ rotate: '-45deg' }] }}>
+              <Text style={{ fontSize: Math.max(12, Math.round(20 * scale)), fontWeight: '900', color: '#fff', includeFontPadding: false }}>74</Text>
+            </View>
+          </View>
+          <Text style={{ fontSize: s10, fontWeight: '800', color: C.primary, letterSpacing: 1, includeFontPadding: false }}>GOOD</Text>
+          {/* Dimension tags */}
+          <View style={{ flexDirection: 'row', gap: Math.round(4 * scale), flexWrap: 'wrap', justifyContent: 'center' }}>
+            {[['Mind', C.secondary], ['Focus', C.teal], ['Body', C.primary]].map(([label, color]) => (
+              <View key={label} style={{
+                backgroundColor: (color as string) + '22', borderRadius: 99,
+                paddingHorizontal: Math.round(6 * scale), paddingVertical: Math.round(2 * scale),
+                borderWidth: 1, borderColor: (color as string) + '40',
+              }}>
+                <Text style={{ fontSize: Math.max(5, Math.round(8 * scale)), color: color as string, fontWeight: '700', includeFontPadding: false }}>{label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Right-side CTAs */}
+        <View style={{ gap: Math.round(6 * scale), flex: 1 }}>
+          {/* 30-day free trial pill */}
+          <View style={{
+            backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: Math.round(10 * scale),
+            paddingHorizontal: Math.round(10 * scale), paddingVertical: Math.round(8 * scale),
+            borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
+            alignItems: 'center',
+          }}>
+            <Text style={{ fontSize: s10, fontWeight: '800', color: '#fff', includeFontPadding: false }}>30-day free trial</Text>
+          </View>
+          {/* App Store */}
+          <View style={{
+            backgroundColor: '#1A1A1A', borderRadius: Math.round(10 * scale),
+            paddingHorizontal: Math.round(10 * scale), paddingVertical: Math.round(7 * scale),
+            borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)',
+            flexDirection: 'row', alignItems: 'center', gap: Math.round(5 * scale),
+          }}>
+            <MaterialIcons name="apple" size={Math.max(8, Math.round(14 * scale))} color="#fff" />
+            <View>
+              <Text style={{ fontSize: Math.max(4, Math.round(7 * scale)), color: 'rgba(255,255,255,0.5)', includeFontPadding: false }}>Available on the</Text>
+              <Text style={{ fontSize: Math.max(6, Math.round(10 * scale)), fontWeight: '700', color: '#fff', includeFontPadding: false }}>App Store</Text>
+            </View>
+          </View>
+          {/* Google Play */}
+          <View style={{
+            backgroundColor: '#1A1A1A', borderRadius: Math.round(10 * scale),
+            paddingHorizontal: Math.round(10 * scale), paddingVertical: Math.round(7 * scale),
+            borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)',
+            flexDirection: 'row', alignItems: 'center', gap: Math.round(5 * scale),
+          }}>
+            <MaterialIcons name="android" size={Math.max(8, Math.round(14 * scale))} color={C.teal} />
+            <View>
+              <Text style={{ fontSize: Math.max(4, Math.round(7 * scale)), color: 'rgba(255,255,255,0.5)', includeFontPadding: false }}>Get it on</Text>
+              <Text style={{ fontSize: Math.max(6, Math.round(10 * scale)), fontWeight: '700', color: '#fff', includeFontPadding: false }}>Google Play</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* ── Edge fade gradient (bottom) ──────────────────────────────── */}
+      <LinearGradient
+        colors={['transparent', 'rgba(6,6,14,0.25)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: cardH * 0.12 }}
+        pointerEvents="none"
+      />
+    </View>
+  );
 }
 
 const ALL_FEATURES = [
@@ -124,40 +503,11 @@ const PRICING = [
   },
 ];
 
-// ─── Hero card with logo-area cover ──────────────────────────────────────────
-// The logo badge occupies roughly top 13% height × left 34% width of the image.
-// We paint a matching dark rectangle over it so the nav branding above is the
-// single source of truth. All content below the logo row is left fully visible.
-function HeroCardImage({ width, style }: { width: number | string; style?: any }) {
-  const imgStyle = typeof width === 'number'
-    ? { width, aspectRatio: 1150 / 600 }
-    : { width: width as any, aspectRatio: 1150 / 600 };
-
-  return (
-    <View style={[{ position: 'relative', overflow: 'hidden' }, style]}>
-      <Image source={HERO_CARD} style={imgStyle} contentFit="cover" transition={300} />
-      {/* Mask just the logo badge row — does NOT cover headline text below */}
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '34%',
-          height: '14%',
-          backgroundColor: '#06060e',
-        }}
-      />
-    </View>
-  );
-}
-
 // ═════════════════════════════════════════════════════════════════════════════
 export default function LandingScreen() {
   const router = useRouter();
   const { w, isMobile, isDesktop } = useLayout();
   const maxW = Math.min(w, 1200);
-  // Mobile uses tighter horizontal padding throughout
   const hPad = isMobile ? 16 : 24;
 
   const heroFade = useRef(new Animated.Value(0)).current;
@@ -165,8 +515,12 @@ export default function LandingScreen() {
     Animated.timing(heroFade, { toValue: 1, duration: 900, delay: 200, useNativeDriver: true }).start();
   }, []);
 
-  // Phone screenshot card width — narrower on mobile for thumb scroll
   const phoneThumbW = isMobile ? 160 : 220;
+
+  // Hero card width for each layout
+  const mobileCardW = w;
+  const tabletCardW = Math.min(w - 48, 700);
+  const desktopCardW = Math.min(w * 0.48, 640);
 
   return (
     <View style={s.root}>
@@ -227,31 +581,31 @@ export default function LandingScreen() {
         <Animated.View style={[s.hero, {
           width: '100%',
           opacity: heroFade,
-          minHeight: isDesktop ? 880 : isMobile ? 'auto' : 760,
-          paddingVertical: isMobile ? 0 : 96,
+          paddingVertical: isMobile ? 0 : 80,
           paddingHorizontal: isMobile ? 0 : hPad,
+          backgroundColor: '#030308',
         }]}>
-          <View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#020208' }]} />
-          <View style={{ position: 'absolute', top: -200, left: '12%', width: 800, height: 800, borderRadius: 400, backgroundColor: 'rgba(94,92,230,0.10)', zIndex: 0 }} />
-          <View style={{ position: 'absolute', bottom: -160, right: '5%', width: 640, height: 640, borderRadius: 320, backgroundColor: 'rgba(245,166,35,0.09)', zIndex: 0 }} />
-          <View style={{ position: 'absolute', top: '40%', left: '-10%', width: 400, height: 400, borderRadius: 200, backgroundColor: 'rgba(50,212,192,0.07)', zIndex: 0 }} />
+          {/* Background gradient */}
+          <LinearGradient
+            colors={['#03030C', '#060614', '#03030C']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+          {/* Ambient glow blobs */}
+          <View pointerEvents="none" style={{ position: 'absolute', top: -120, left: '8%', width: 600, height: 600, borderRadius: 300, backgroundColor: 'rgba(94,92,230,0.10)', zIndex: 0 }} />
+          <View pointerEvents="none" style={{ position: 'absolute', bottom: -80, right: '5%', width: 500, height: 500, borderRadius: 250, backgroundColor: 'rgba(245,166,35,0.08)', zIndex: 0 }} />
+          <View pointerEvents="none" style={{ position: 'absolute', top: '40%', left: '-8%', width: 360, height: 360, borderRadius: 180, backgroundColor: 'rgba(50,212,192,0.07)', zIndex: 0 }} />
 
-          {/* ── MOBILE layout: card top, buttons below ───────────────── */}
+          {/* ── MOBILE layout ─────────────────────────────────────────── */}
           {isMobile ? (
-            <View style={{ width: '100%', zIndex: 1, overflow: 'hidden' }}>
-              {/* Full-width hero card — no margins, edge to edge */}
-              <HeroCardImage
-                width={w}
-                style={{
-                  shadowColor: C.primary,
-                  shadowOffset: { width: 0, height: 16 },
-                  shadowOpacity: 0.4,
-                  shadowRadius: 32,
-                  elevation: 24,
-                }}
-              />
+            <View style={{ width: '100%', zIndex: 1 }}>
+              {/* Native hero card — full width, edge to edge */}
+              <NativeHeroCard width={mobileCardW} />
+
               {/* Buttons + trust below card */}
-              <View style={{ paddingHorizontal: hPad, paddingTop: 24, paddingBottom: 32, gap: 14 }}>
+              <View style={{ paddingHorizontal: hPad, paddingTop: 24, paddingBottom: 32, gap: 14, backgroundColor: '#030308' }}>
                 <View style={{ gap: 10 }}>
                   <Pressable onPress={() => router.push('/login')} style={({ pressed }) => [s.heroMainBtn, { width: '100%', justifyContent: 'center' }, pressed && { opacity: 0.85 }]}>
                     <MaterialIcons name="language" size={18} color="#000" />
@@ -282,13 +636,12 @@ export default function LandingScreen() {
               flexDirection: isDesktop ? 'row' : 'column',
               alignItems: 'center',
               zIndex: 1,
-              gap: isDesktop ? 0 : 48,
+              gap: isDesktop ? 40 : 48,
             }]}>
-              {/* ── Copy */}
+              {/* ── Copy column */}
               <View style={[s.heroCopy, {
                 flex: isDesktop ? 1 : undefined,
                 alignItems: isDesktop ? 'flex-start' : 'center',
-                paddingRight: isDesktop ? 24 : 0,
                 gap: 22,
               }]}>
                 <View style={[s.heroBadge, { alignSelf: isDesktop ? 'flex-start' : 'center' }]}>
@@ -297,8 +650,8 @@ export default function LandingScreen() {
                 </View>
                 <Text style={[s.heroTitle, {
                   textAlign: isDesktop ? 'left' : 'center',
-                  fontSize: isDesktop ? 66 : 52,
-                  lineHeight: isDesktop ? 76 : 60,
+                  fontSize: isDesktop ? 62 : 48,
+                  lineHeight: isDesktop ? 72 : 58,
                 }]}>
                   Know your vibe.{'\n'}<Text style={{ color: C.primary }}>Understand yourself.</Text>
                 </Text>
@@ -326,36 +679,34 @@ export default function LandingScreen() {
                 </View>
               </View>
 
-              {/* Desktop hero card */}
+              {/* ── Native hero card — desktop */}
               {isDesktop && (
-                <View style={{ flex: 1.15, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ flex: 1.2, alignItems: 'center', justifyContent: 'center' }}>
                   <View style={{
-                    shadowColor: C.primary,
-                    shadowOffset: { width: 0, height: 32 },
-                    shadowOpacity: 0.45,
-                    shadowRadius: 64,
-                    elevation: 40,
+                    shadowColor: C.teal,
+                    shadowOffset: { width: 0, height: 24 },
+                    shadowOpacity: 0.35,
+                    shadowRadius: 56,
+                    elevation: 32,
                     borderRadius: 20,
-                    overflow: 'hidden',
                   }}>
-                    <HeroCardImage width={Math.min(w * 0.46, 600)} />
+                    <NativeHeroCard width={desktopCardW} />
                   </View>
                 </View>
               )}
 
-              {/* Tablet hero card */}
+              {/* ── Native hero card — tablet */}
               {!isDesktop && (
-                <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ width: '100%', alignItems: 'center' }}>
                   <View style={{
-                    shadowColor: C.primary,
-                    shadowOffset: { width: 0, height: 24 },
-                    shadowOpacity: 0.40,
-                    shadowRadius: 48,
-                    elevation: 32,
+                    shadowColor: C.teal,
+                    shadowOffset: { width: 0, height: 20 },
+                    shadowOpacity: 0.30,
+                    shadowRadius: 40,
+                    elevation: 24,
                     borderRadius: 16,
-                    overflow: 'hidden',
                   }}>
-                    <HeroCardImage width={Math.min(w - 48, 640)} />
+                    <NativeHeroCard width={tabletCardW} compact />
                   </View>
                 </View>
               )}
@@ -801,7 +1152,7 @@ const s = StyleSheet.create({
   ribbonBtn:     { backgroundColor: C.primary, borderRadius: 7, paddingHorizontal: 12, paddingVertical: 5 },
   ribbonBtnText: { fontSize: 12, fontWeight: '800', color: '#000', includeFontPadding: false },
   hero:          { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  heroContent:   { gap: 56, alignItems: 'center', justifyContent: 'center' },
+  heroContent:   { gap: 56, alignItems: 'center', justifyContent: 'center', paddingVertical: 0 },
   heroCopy:      { gap: 22, maxWidth: 580 },
   heroBadge:     { flexDirection: 'row', alignItems: 'center', gap: 7, backgroundColor: C.primaryGlow, borderRadius: 99, paddingHorizontal: 14, paddingVertical: 6, alignSelf: 'flex-start', borderWidth: 1, borderColor: C.primary + '30' },
   heroBadgeText: { fontSize: 11, fontWeight: '700', color: C.primary, includeFontPadding: false },
@@ -814,9 +1165,6 @@ const s = StyleSheet.create({
   heroGhostBtnText: { fontSize: 15, fontWeight: '700', color: '#fff', includeFontPadding: false },
   heroTrust:     { flexDirection: 'row', gap: 12, flexWrap: 'wrap' },
   heroTrustItem: { fontSize: 12, color: C.teal, fontWeight: '600', includeFontPadding: false },
-  heroImgWrap:   { alignItems: 'center', justifyContent: 'center', minWidth: 420, flexDirection: 'row' },
-  heroPhone:     { width: 200, backgroundColor: '#000', borderRadius: 26, overflow: 'hidden' },
-  heroPhoneImg:  { width: '100%', aspectRatio: 9 / 16 },
   statsBar:   { backgroundColor: '#0A0A0A', borderTopWidth: 1, borderBottomWidth: 1, borderColor: C.borderSubtle, paddingVertical: 20, alignItems: 'center' },
   statsInner: { gap: 0, alignSelf: 'center' },
   statItem:   { alignItems: 'center', gap: 4, paddingHorizontal: 20, paddingVertical: 10 },
