@@ -352,7 +352,7 @@ export default function LandingScreen() {
                 }}>
                   <Image
                     source={HERO_CARD}
-                    style={{ width: Math.min(w - 32, 380), aspectRatio: 1150 / 600, borderRadius: 14 }}
+                    style={{ width: Math.min(w - 8, 480), aspectRatio: 1150 / 600, borderRadius: 14 }}
                     contentFit="cover"
                     transition={300}
                   />
