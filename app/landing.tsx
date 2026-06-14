@@ -536,11 +536,6 @@ export default function LandingScreen() {
                   ))}
                 </View>
               )}
-              {!isMobile && (
-                <Pressable onPress={() => router.push('/login')} style={({ pressed }) => [st.navGhost, pressed && { opacity: 0.7 }]}>
-                  <Text style={st.navGhostText}>Sign in</Text>
-                </Pressable>
-              )}
               <Pressable onPress={() => router.push('/login')} style={({ pressed }) => [st.navBtn, isMobile && { paddingHorizontal: 14, paddingVertical: 8 }, pressed && { opacity: 0.85 }]}>
                 <Text style={[st.navBtnText, isMobile && { fontSize: 13 }]}>Sign in</Text>
               </Pressable>
