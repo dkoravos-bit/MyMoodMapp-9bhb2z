@@ -39,7 +39,7 @@ const C = {
 const MOODPRINT    = require('@/assets/moodprint-icon.png');
 const DARK_MAPP    = { uri: 'https://cdn-ai.onspace.ai/onspace/files/DB3YfdGqKwFTxrBSfaGMLH/dark_05_mapp.jpg' };
 const DARK_DASH    = { uri: 'https://cdn-ai.onspace.ai/onspace/files/kgVXndHKcmab9bb7uKdVjz/dark_01_dashboard.jpg' };
-const APP_STORE    = 'https://apps.apple.com/app/mymoodmapp/id000000000';
+const APP_STORE    = 'https://apps.apple.com/us/app/mymoodmapp-81aebc/id6776839488';
 const PLAY_STORE   = 'https://play.google.com/store/apps/details?id=com.mymoodmapp';
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
