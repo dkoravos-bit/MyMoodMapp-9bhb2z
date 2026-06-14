@@ -137,71 +137,77 @@ function SectionHead({ title, sub, isMobile }: { title: string; sub?: string; is
   );
 }
 
-const HERO_CARD = require('@/assets/images/hero-card.jpg');
+const HERO_CARD    = require('@/assets/images/hero-mobile.jpg');
+const HERO_DESKTOP = require('@/assets/images/hero-desktop.jpg');
 
-// ─── Mobile Hero (full-bleed image hero matching website aesthetic) ───────────
+// ─── Mobile Hero — full 9:16 image with all content overlaid ────────────────
 function MobileHero({ w, pad, onWeb, onAppStore, onPlayStore }: any) {
-  const heroH = Math.round(w * 0.72);
+  const heroH = Math.round(w * (16 / 9));
   return (
-    <View style={{ width: '100%', backgroundColor: '#050508' }}>
-      {/* Full-bleed hero image with gradient overlays */}
-      <View style={{ width: '100%', height: heroH, overflow: 'hidden' }}>
-        <Image
-          source={HERO_CARD}
-          style={{ width: '100%', height: '100%' }}
-          contentFit="cover"
-          contentPosition="center"
-          transition={300}
-        />
-        {/* Dark gradient from bottom so text below reads cleanly */}
-        <LinearGradient
-          colors={['transparent', 'rgba(5,5,8,0.55)', '#050508']}
-          start={{ x: 0, y: 0.5 }} end={{ x: 0, y: 1 }}
-          style={StyleSheet.absoluteFillObject}
-          pointerEvents="none"
-        />
-        {/* Left-edge dark fade for text legibility */}
-        <LinearGradient
-          colors={['rgba(5,5,8,0.55)', 'transparent']}
-          start={{ x: 0, y: 0 }} end={{ x: 0.5, y: 0 }}
-          style={StyleSheet.absoluteFillObject}
-          pointerEvents="none"
-        />
-        {/* Overlay headline ON the image */}
-        <View style={{
-          position: 'absolute', bottom: 20, left: pad, right: pad,
-        }}>
-          <View style={{
-            flexDirection: 'row', alignItems: 'center', gap: 6,
-            alignSelf: 'flex-start', marginBottom: 8,
-            backgroundColor: 'rgba(245,166,35,0.15)',
-            borderRadius: 99, borderWidth: 1, borderColor: 'rgba(245,166,35,0.35)',
-            paddingHorizontal: 10, paddingVertical: 4,
-          }}>
-            <MaterialIcons name="auto-awesome" size={10} color={C.primary} />
-            <Text style={{ fontSize: 10, fontWeight: '700', color: C.primary, letterSpacing: 0.3, includeFontPadding: false }}>AI-Powered Wellbeing Intelligence</Text>
-          </View>
-          <Text style={{ fontSize: 30, fontWeight: '900', color: C.white, lineHeight: 36, includeFontPadding: false, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 }}>Know your vibe.</Text>
-          <Text style={{ fontSize: 30, fontWeight: '900', color: C.primary, lineHeight: 38, includeFontPadding: false, textShadowColor: 'rgba(0,0,0,0.6)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 4 }}>Understand yourself.</Text>
-        </View>
-      </View>
+    <View style={{ width: '100%', height: heroH, backgroundColor: '#050508', overflow: 'hidden' }}>
+      {/* Full 9:16 hero image */}
+      <Image
+        source={HERO_CARD}
+        style={StyleSheet.absoluteFillObject}
+        contentFit="cover"
+        contentPosition="top"
+        transition={300}
+      />
 
-      {/* Below-image content */}
-      <View style={{ paddingHorizontal: pad, paddingTop: 20, paddingBottom: 28, gap: 16 }}>
+      {/* Gradient: transparent at top → dark from midpoint down */}
+      <LinearGradient
+        colors={['transparent', 'transparent', 'rgba(5,5,8,0.55)', 'rgba(5,5,8,0.88)', 'rgba(5,5,8,0.97)']}
+        locations={[0, 0.32, 0.52, 0.70, 1]}
+        start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+      {/* Subtle left-edge fade for text readability */}
+      <LinearGradient
+        colors={['rgba(5,5,8,0.35)', 'transparent']}
+        start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 0 }}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+
+      {/* All overlay content — pinned to bottom */}
+      <View style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        paddingHorizontal: pad, paddingBottom: 28, gap: 14,
+      }}>
+        {/* AI badge */}
+        <View style={{
+          flexDirection: 'row', alignItems: 'center', gap: 6,
+          alignSelf: 'flex-start',
+          backgroundColor: 'rgba(245,166,35,0.18)',
+          borderRadius: 99, borderWidth: 1, borderColor: 'rgba(245,166,35,0.40)',
+          paddingHorizontal: 11, paddingVertical: 5,
+        }}>
+          <MaterialIcons name="auto-awesome" size={10} color={C.primary} />
+          <Text style={{ fontSize: 11, fontWeight: '700', color: C.primary, letterSpacing: 0.3, includeFontPadding: false }}>AI-Powered Wellbeing Intelligence</Text>
+        </View>
+
+        {/* Headline */}
+        <View style={{ gap: 0 }}>
+          <Text style={{ fontSize: 34, fontWeight: '900', color: C.white, lineHeight: 40, includeFontPadding: false, textShadowColor: 'rgba(0,0,0,0.7)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 }}>Know your vibe.</Text>
+          <Text style={{ fontSize: 34, fontWeight: '900', color: C.primary, lineHeight: 42, includeFontPadding: false, textShadowColor: 'rgba(0,0,0,0.7)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 6 }}>Understand yourself.</Text>
+        </View>
+
         {/* Subtitle */}
-        <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.70)', lineHeight: 22, includeFontPadding: false }}>
-          MyMoodMapp fuses mood logging, AI insights, fitness data, weather, astrology, cycle tracking and healing soundscapes into one intelligent wellbeing picture.
+        <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 20, includeFontPadding: false }}>
+          Mood logging, AI insights, fitness, weather, astrology, cycle tracking and healing soundscapes — one intelligent wellbeing picture.
         </Text>
 
         {/* Feature pills */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }}>
           {['Mood Logging', 'Emotional Mapping', 'Healing Sounds', 'AI Insights', 'Cycle Tracking'].map(pill => (
             <View key={pill} style={{
-              borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.07)',
-              borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+              borderRadius: 99,
+              backgroundColor: 'rgba(255,255,255,0.10)',
+              borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
               paddingHorizontal: 10, paddingVertical: 5,
             }}>
-              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.60)', fontWeight: '600', includeFontPadding: false }}>{pill}</Text>
+              <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: '600', includeFontPadding: false }}>{pill}</Text>
             </View>
           ))}
         </View>
@@ -209,23 +215,23 @@ function MobileHero({ w, pad, onWeb, onAppStore, onPlayStore }: any) {
         {/* Score widget */}
         <View style={{
           flexDirection: 'row', alignItems: 'center', gap: 12, alignSelf: 'flex-start',
-          backgroundColor: 'rgba(12,12,20,0.95)',
-          borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)',
-          paddingHorizontal: 14, paddingVertical: 12,
+          backgroundColor: 'rgba(8,8,16,0.88)',
+          borderRadius: 14, borderWidth: 1, borderColor: 'rgba(255,255,255,0.13)',
+          paddingHorizontal: 14, paddingVertical: 11,
         }}>
-          <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(245,166,35,0.18)', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(245,166,35,0.40)' }}>
-            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: C.primary }} />
+          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(245,166,35,0.20)', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: 'rgba(245,166,35,0.45)' }}>
+            <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: C.primary }} />
           </View>
           <View>
-            <Text style={{ fontSize: 24, fontWeight: '900', color: C.white, lineHeight: 28, includeFontPadding: false }}>74</Text>
-            <Text style={{ fontSize: 11, color: C.white35, fontWeight: '600', includeFontPadding: false }}>Good · Today</Text>
+            <Text style={{ fontSize: 22, fontWeight: '900', color: C.white, lineHeight: 26, includeFontPadding: false }}>74</Text>
+            <Text style={{ fontSize: 10, color: C.white35, fontWeight: '600', includeFontPadding: false }}>Good · Today</Text>
           </View>
-          <View style={{ width: 1, height: 32, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 2 }} />
+          <View style={{ width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.10)', marginHorizontal: 2 }} />
           <View style={{ gap: 5 }}>
             {[{ l: 'Mind', v: 72, c: C.secondary }, { l: 'Energy', v: 80, c: C.teal }, { l: 'Body', v: 68, c: C.primary }].map(d => (
               <View key={d.l} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 10, color: C.white35, width: 38, includeFontPadding: false }}>{d.l}</Text>
-                <View style={{ width: 72, height: 4, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                <Text style={{ fontSize: 10, color: C.white35, width: 36, includeFontPadding: false }}>{d.l}</Text>
+                <View style={{ width: 68, height: 4, backgroundColor: 'rgba(255,255,255,0.10)', borderRadius: 2, overflow: 'hidden' }}>
                   <View style={{ width: `${d.v}%` as any, height: '100%', backgroundColor: d.c, borderRadius: 2 }} />
                 </View>
                 <Text style={{ fontSize: 10, color: d.c, fontWeight: '700', width: 20, includeFontPadding: false }}>{d.v}</Text>
@@ -235,22 +241,22 @@ function MobileHero({ w, pad, onWeb, onAppStore, onPlayStore }: any) {
         </View>
 
         {/* CTAs */}
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 9 }}>
           <Pressable onPress={onAppStore} style={({ pressed }) => [st.ctaPrimary, { justifyContent: 'center' }, pressed && { opacity: 0.88 }]}>
             <MaterialIcons name="apple" size={20} color="#000" />
             <Text style={st.ctaPrimaryText}>Download on App Store</Text>
           </Pressable>
-          <View style={{ flexDirection: 'row', gap: 10 }}>
+          <View style={{ flexDirection: 'row', gap: 9 }}>
             <Pressable onPress={onPlayStore} style={({ pressed }) => [st.ctaGhost, { flex: 1, justifyContent: 'center', borderColor: C.teal + '55' }, pressed && { opacity: 0.75 }]}>
-              <MaterialIcons name="android" size={17} color={C.teal} />
+              <MaterialIcons name="android" size={16} color={C.teal} />
               <Text style={[st.ctaGhostText, { color: C.teal }]}>Google Play</Text>
             </Pressable>
             <Pressable onPress={onWeb} style={({ pressed }) => [st.ctaGhost, { flex: 1, justifyContent: 'center' }, pressed && { opacity: 0.75 }]}>
-              <MaterialIcons name="language" size={17} color={C.white} />
+              <MaterialIcons name="language" size={16} color={C.white} />
               <Text style={st.ctaGhostText}>Web App</Text>
             </Pressable>
           </View>
-          <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap', justifyContent: 'center', paddingTop: 2 }}>
+          <View style={{ flexDirection: 'row', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             {['✓ 30-day free trial', '✓ No credit card', '✓ Cancel anytime'].map(t => (
               <Text key={t} style={{ fontSize: 11, color: C.teal, fontWeight: '600', includeFontPadding: false }}>{t}</Text>
             ))}
@@ -271,16 +277,31 @@ function DesktopHero({ w, isMobile, isTablet, isDesktop, pad, maxW, onWeb, onApp
 
   return (
     <View style={{ width: '100%', backgroundColor: '#050508', overflow: 'hidden' }}>
-      {/* Subtle glow orbs — low opacity, no hard circles */}
-      <View pointerEvents="none" style={StyleSheet.absoluteFillObject}>
+      {/* Full-bleed desktop hero background */}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFillObject, { overflow: 'hidden' }]}>
+        <Image
+          source={HERO_DESKTOP}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+          contentPosition="center"
+          transition={300}
+        />
+        {/* Dark overlay so text remains readable */}
         <LinearGradient
-          colors={['transparent', 'rgba(45,212,192,0.05)', 'transparent']}
-          start={{ x: 1, y: 0 }} end={{ x: 0.5, y: 1 }}
+          colors={['rgba(5,5,8,0.70)', 'rgba(5,5,8,0.50)', 'rgba(5,5,8,0.80)']}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFillObject}
         />
+        {/* Left fade for copy legibility */}
         <LinearGradient
-          colors={['rgba(124,111,247,0.05)', 'transparent', 'transparent']}
-          start={{ x: 0, y: 0 }} end={{ x: 0.6, y: 0.8 }}
+          colors={['rgba(5,5,8,0.75)', 'rgba(5,5,8,0.30)', 'transparent']}
+          start={{ x: 0, y: 0 }} end={{ x: 0.55, y: 0 }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        {/* Bottom fade into stats bar */}
+        <LinearGradient
+          colors={['transparent', 'rgba(5,5,8,0.90)', '#050508']}
+          start={{ x: 0, y: 0.6 }} end={{ x: 0, y: 1 }}
           style={StyleSheet.absoluteFillObject}
         />
       </View>
