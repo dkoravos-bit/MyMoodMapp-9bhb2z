@@ -37,7 +37,7 @@ const C = {
   success:      '#30D158',
 };
 
-const SUPPORT_EMAIL = 'support@mymoodmapp.com';
+const SUPPORT_EMAIL = 'support@kairosdigitallabs.com';
 const EFFECTIVE_DATE = 'May 9, 2026';
 
 // Table of contents sections

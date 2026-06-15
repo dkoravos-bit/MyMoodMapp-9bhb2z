@@ -18,7 +18,7 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Spacing, Radius, Typography } from '@/constants/theme';
 
-const SUPPORT_EMAIL = 'support@mymoodmapp.com';
+const SUPPORT_EMAIL = 'support@kairosdigitallabs.com';
 const APP_NAME = 'MyMoodMapp';
 
 const FAQ_ITEMS = [

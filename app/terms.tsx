@@ -36,7 +36,7 @@ const C = {
   error:        '#FF453A',
 };
 
-const SUPPORT_EMAIL = 'support@mymoodmapp.com';
+const SUPPORT_EMAIL = 'support@kairosdigitallabs.com';
 const EFFECTIVE_DATE = 'May 9, 2026';
 
 function useWidth() {
