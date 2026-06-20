@@ -69,10 +69,10 @@ Deno.serve(async (req: Request) => {
     const mFocus  = clamp(mScore + rand(-7, 7), 25, 95);
 
     const morningTags = mScore >= 75
-      ? [['Good sleep', 'Early rise'], ['Work flowed', 'Morning run'], ['Exercised', 'Got outside'], ['Deep sleep', 'Gratitude practice']][rand(0, 3)]
+      ? [['sleep_good', 'exercise'], ['work_good', 'exercise'], ['exercise', 'sunlight'], ['sleep_great', 'gratitude']][rand(0, 3)]
       : mScore <= 50
-      ? [['Poor sleep'], ['Anxious'], ['Stressed', 'Late night'], ['Tired']][rand(0, 3)]
-      : [['Work flowed'], ['Quiet day'], ['Productive'], ['Deep sleep']][rand(0, 3)];
+      ? [['sleep_bad'], ['anxious'], ['work_hard', 'late_night'], ['sleep_bad']][rand(0, 3)]
+      : [['work_good'], ['rest_day'], ['work_good'], ['sleep_good']][rand(0, 3)];
 
     const morningJournals = [
       'Woke up feeling refreshed, ready for the day.',
@@ -95,10 +95,10 @@ Deno.serve(async (req: Request) => {
     const eFocus  = clamp(eScore + rand(-7, 7), 25, 97);
 
     const eveningTags = eScore >= 75
-      ? [['Productive', 'Gratitude practice'], ['Social time', 'Good food'], ['Nature walk', 'Meditation'], ['Family time', 'Cooking']][rand(0, 3)]
+      ? [['work_good', 'gratitude'], ['social_fun', 'healthy_eating'], ['nature_time', 'meditation'], ['quality_family', 'healthy_eating']][rand(0, 3)]
       : eScore <= 50
-      ? [['Heavy screen time'], ['Conflict'], ['Stayed in', 'Processed food'], ['Tired']  ][rand(0, 3)]
-      : [['Good food'], ['Got outside'], ['Read a book'], ['Cooking']][rand(0, 3)];
+      ? [['screens'], ['conflict'], ['no_sunlight', 'poor_eating'], ['sleep_bad']][rand(0, 3)]
+      : [['healthy_eating'], ['sunlight'], ['leisure_time'], ['healthy_eating']][rand(0, 3)];
 
     const eveningJournals = [
       'Productive day overall. Glad I tracked.',
