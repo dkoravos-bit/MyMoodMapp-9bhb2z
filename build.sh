@@ -3,7 +3,7 @@ set -e
 
 # Remove stale lockfile so npm install regenerates it cleanly.
 # This prevents the "specifiers in lockfile don't match package.json" error
-# that causes Cloudflare Pages builds to fail when OnSpace updates packages.
+# that causes Cloudflare Pages builds to fail after package updates.
 echo "→ Removing stale package-lock.json..."
 rm -f package-lock.json
 

@@ -35,7 +35,7 @@ Copy `.env.example` to `.env` and fill in your Supabase credentials.
 
 ## App Store
 
-- Bundle ID: `com.dkoravos.mymoodmapp`
+- Bundle ID: `com.mymoodmapp.app`
 - Version: 1.0.0
 - Build: 3
 - Apple Team ID: AH86J8H6P7

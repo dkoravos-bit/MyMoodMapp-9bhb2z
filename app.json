@@ -10,7 +10,7 @@
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.dkoravos.mymoodmapp",
+      "bundleIdentifier": "com.mymoodmapp.app",
       "buildNumber": "49",
       "jsEngine": "hermes",
       "infoPlist": {
@@ -41,7 +41,7 @@
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#0A0A14"
       },
-      "package": "com.dkoravos.mymoodmapp",
+      "package": "com.mymoodmapp.app",
       "versionCode": 10,
       "edgeToEdgeEnabled": true,
       "permissions": [

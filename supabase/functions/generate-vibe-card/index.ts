@@ -17,12 +17,11 @@ serve(async (req) => {
       );
     }
 
-    const apiKey = Deno.env.get('ONSPACE_AI_API_KEY');
-    const baseUrl = Deno.env.get('ONSPACE_AI_BASE_URL');
+    const apiKey = Deno.env.get('OPENROUTER_API_KEY');
 
-    if (!apiKey || !baseUrl) {
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: 'OnSpace AI not configured' }),
+        JSON.stringify({ error: 'OPENROUTER_API_KEY not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -45,11 +44,13 @@ Design instructions:
 - Ultra high resolution, dramatic lighting, vivid colors
 - No text overlays needed — just the visual portrait and aura`;
 
-    const aiResponse = await fetch(`${baseUrl}/chat/completions`, {
+    const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://mymoodmapp.app',
+        'X-Title': 'MyMoodMapp',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash-image',
@@ -78,9 +79,9 @@ Design instructions:
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
-      console.error('OnSpace AI error:', errText);
+      console.error('OpenRouter error:', errText);
       return new Response(
-        JSON.stringify({ error: `OnSpace AI: ${errText}` }),
+        JSON.stringify({ error: `AI image generation failed: ${errText}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

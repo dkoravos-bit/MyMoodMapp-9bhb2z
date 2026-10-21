@@ -10,7 +10,7 @@
  *   SUBSCRIBER_ALIAS, PRODUCT_CHANGE
  *
  * RevenueCat dashboard → Integrations → Webhooks → set URL to:
- *   https://<project>.backend.onspace.ai/functions/v1/revenuecat-webhook
+ *   https://<project-ref>.supabase.co/functions/v1/revenuecat-webhook
  *
  * Optional: set Authorization header value as REVENUECAT_WEBHOOK_AUTH_HEADER secret.
  */

@@ -16,7 +16,7 @@ try {
   if (dsn) {
     Sentry.init({
       dsn,
-      release: 'com.dkoravos.mymoodmapp@1.0.0+19',
+      release: 'com.mymoodmapp.app@1.0.0+19',
       dist: '19',
       tracesSampleRate: 0.2,
       enableNativeCrashHandling: true,

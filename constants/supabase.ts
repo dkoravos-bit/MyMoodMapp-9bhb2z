@@ -1,8 +1,8 @@
 /**
- * Supabase / OnSpace Cloud connection constants.
+ * Supabase connection constants.
  *
  * The template's getSupabaseClient() reads EXPO_PUBLIC_SUPABASE_* directly
- * from process.env (injected by Metro from the .env file managed by OnSpace).
+ * from process.env (injected by Metro from the .env file).
  * This file is only used by app-level code that needs the URL/key directly.
  *
  * DO NOT add fallback hard-coded keys here — they can override the correct

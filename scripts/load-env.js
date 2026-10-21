@@ -6,7 +6,7 @@
  *
  * Expo's Metro bundler reads .env files automatically at build time, so
  * this script only validates the keys exist — it does NOT override them.
- * The .env file is committed to this repo (managed by OnSpace) and will
+ * The .env file is committed to this repo and will
  * be present in the Vercel build workspace after `git clone`.
  *
  * If EXPO_PUBLIC_SUPABASE_ANON_KEY is missing or empty, the script fails

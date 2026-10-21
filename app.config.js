@@ -3,7 +3,7 @@
  *
  * Replaces app.json as the Expo config source.
  * On EAS builds (EAS_BUILD=true set by EAS automatically, or CI=true),
- * native-only plugins are added that would break the OnSpace preview sandbox.
+ * native-only plugins are added that only work in a native build.
  * In all other environments the config is identical to app.json.
  */
 
@@ -19,7 +19,7 @@ const isEASBuild = !!(
 
 // Plugins that must ONLY run during EAS native builds.
 // They require @expo/config-plugins, fs, path — none of which exist in
-// the OnSpace preview sandbox where `expo` itself is not installed.
+// non-native environments (e.g. web export).
 const easNativePlugins = [];
 
 if (isEASBuild) {

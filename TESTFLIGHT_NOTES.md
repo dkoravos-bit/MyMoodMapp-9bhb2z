@@ -126,7 +126,7 @@ To test notifications:
 
 ## EAS Build Notes (Before Submitting)
 
-**No manual plugin changes needed.** Native-only plugins (`withoutWebRTC`, `withRCTFatalOverride`, `@sentry/react-native/expo`) are automatically injected via `app.config.js` when EAS sets the `EAS_BUILD=true` environment variable during the build. The OnSpace preview sandbox never sees these plugins.
+**No manual plugin changes needed.** Native-only plugins (`withoutWebRTC`, `withRCTFatalOverride`, `@sentry/react-native/expo`) are automatically injected via `app.config.js` when EAS sets the `EAS_BUILD=true` environment variable during the build. Non-native builds (web export) never see these plugins.
 
 **Current build number: 15**
 
@@ -143,7 +143,7 @@ eas build --platform ios --profile production
 
 ## Technical Notes for Reviewers
 
-- Bundle ID: com.dkoravos.mymoodmapp
+- Bundle ID: com.mymoodmapp.app
 - Version: 1.0.0 (Build 3)
 - Min iOS: 15.0
 - Supports: iPhone and iPad
