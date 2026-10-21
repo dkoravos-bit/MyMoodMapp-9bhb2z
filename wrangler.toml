@@ -25,5 +25,5 @@ pages_build_output_dir = "dist"
 #   NODE_VERSION                  = 20
 #   CI                            = false
 #   EXPO_USE_METRO_WORKSPACE_ROOT = 1
-#   EXPO_PUBLIC_SUPABASE_URL      = https://cmktrjpyclukrjplcmkt.backend.onspace.ai
+#   EXPO_PUBLIC_SUPABASE_URL      = https://moaisuofjcolnbmevtlv.supabase.co
 #   EXPO_PUBLIC_SUPABASE_ANON_KEY = <your anon key from .env>
