@@ -8,12 +8,12 @@
 - **One source of truth for art:** `supabase/functions/_shared/moodArtSpec.ts` — traits → palette, legend, alt text, day name, archetype, AI plate prompt, cache key. Imported by the app and the edge function.
 - **Honest numbers:** `lib/insight.ts` — score = the four dimensions only; drivers compare your days with vs without (Welch t, n shown, Strong/Likely/Hunch); rhythm = time-of-day averages ± spread; forgiving streak (1 rest day / 7).
 - **Screens:** `app/(tabs)/{index,mapp,learn,circle}.tsx`, `app/{log,voice,reveal,wrapped,experiment,share-care,settings,plans,onboarding}.tsx`.
-- **Backend (written, NOT yet deployed):** `generate-mood-art` v2 (FLUX.2 klein 4B on Cloudflare, cached by trait bucket, 12/day cap), `transcribe-voice` → Cloudflare Whisper (no Groq), new `parse-voice-log` (OpenRouter), migration `20261022000000_redesign.sql` (experiments, share_grants, mood_art_generations, user_profiles.art_tone/glow/glow_date/share_glow).
+- **Backend (live on `moaisuofjcolnbmevtlv` since 2026-10-21):** `generate-mood-art` v2 (FLUX.2 klein 4B on Cloudflare, cached by trait bucket, 12/day cap), `transcribe-voice` → Cloudflare Whisper (no Groq), new `parse-voice-log` (OpenRouter), migration `20261022000000_redesign.sql` (experiments, share_grants, mood_art_generations, user_profiles.art_tone/glow/glow_date/share_glow).
 
-## Before it works end to end
-1. Apply migration `20261022000000_redesign.sql` to project `moaisuofjcolnbmevtlv`.
-2. Deploy `generate-mood-art`, `transcribe-voice`, `parse-voice-log` (include `_shared/moodArtSpec.ts`, `_shared/http.ts`, `_shared/cors.ts`).
-3. New native **build** on iOS and Android (also needed for the bundle ID / subscription changes on `onspace-migration`).
+## Status
+- Migration `20261022000000_redesign.sql` applied (run in the SQL editor, 2026-10-21).
+- `generate-mood-art` v9, `transcribe-voice` v9, `parse-voice-log` v1 deployed (each bundle includes `_shared/http.ts`, `_shared/cors.ts`; the art function also `_shared/moodArtSpec.ts`). All three return 401 without a session.
+- Still needed: a new native **build** on iOS and Android (also needed for the bundle ID / subscription changes on `onspace-migration`), then a signed-in device test of art generation and voice.
 
 ## Platform parity — needs device testing
 - Slider: native uses `@react-native-community/slider`; web uses `<input type=range>` (`ui/Slider.tsx`).
