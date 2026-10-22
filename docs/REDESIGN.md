@@ -25,6 +25,13 @@
 - Migration `20261022010000_fitness_health_signals.sql` adds `hrv_ms`, `mindful_minutes`, `daylight_minutes`, `workouts` to `fitness_data` — must be applied before cloud sync works.
 - Before this, the repo never contained a Health library: OnSpace's build server injected `react-native-health` at build time.
 
+## Art spec v2 (Oct 22, 2026)
+- `moodArtSpec.ts` SPEC_VERSION 2 (composition seed stays on SEED_VERSION 1 so users keep their composition). New traits: `sleepKnown`, `sun` (daylight 0–3), `recovery` (HRV vs the user's 30-day median), and `trails` now = max(steps, workouts).
+- Live art (`art/MoodField.tsx`): sun glow + water reflection, dotted step/workout paths, soft halo (HRV above usual) or low mist (below usual), faint neutral stars when sleep isn't connected. Compass now draws on a padded canvas (its soft edges used to clip into a square).
+- Legend tells the truth: "Faint stars — Sleep isn't connected" instead of "Last night's sleep"; week/month say "Your sleep".
+- Wrapped uses the month's AI painting behind the card. Today shows a "This week" painting (week layer) once 2+ days are logged.
+- `generate-mood-art` v10 deployed (accepts v1 traits from older builds).
+
 ## Platform parity — needs device testing
 - Slider: native uses `@react-native-community/slider`; web uses `<input type=range>` (`ui/Slider.tsx`).
 - Mood Print glow (SVG blur) is skipped on Android; arcs stay crisp.
@@ -39,4 +46,3 @@
 - Therapist share choices are saved (`share_grants`), but RLS still gives an active therapist read access to all mood rows; the dashboard should honor the grant (or move to a view).
 - Circle nudges use the system share sheet (no push yet).
 - Old screens kept as-is in the old look: cycle-tracker, quiz/result, accountability, buddy-activity, therapist-dashboard, account, login, landing.
-- Legend says "Last night's sleep" even when no sleep data is connected (stars default to "a few").

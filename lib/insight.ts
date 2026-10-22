@@ -261,6 +261,7 @@ export function artInputFor(entries: MoodLogEntry[], fitness: DailyFitnessEntry[
   const tagCounts = new Map<string, number>();
   use.forEach(e => [e.primaryTag, ...(e.additionalTags ?? [])].filter(Boolean).forEach(t => tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1)));
   const fit = fitness.find(f => f.date === today) ?? null;
+  const win = fitness.filter(f => f.date >= from && f.date <= today);
   return {
     score: Math.round(use.reduce((s, e) => s + e.score, 0) / n),
     ...dims,
@@ -269,11 +270,24 @@ export function artInputFor(entries: MoodLogEntry[], fitness: DailyFitnessEntry[
     tags: [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t),
     sleepHours: windowDays === 1 ? fit?.sleepHours ?? null : avgOf(fitness.filter(f => f.date >= from).map(f => f.sleepHours)),
     steps: windowDays === 1 ? fit?.steps ?? null : avgOf(fitness.filter(f => f.date >= from).map(f => f.steps)),
+    // Workouts: 0 is a real value on synced days, so average including zeros (only over synced days).
+    workoutMinutes: windowDays === 1 ? (fit && synced(fit) ? fit.workoutMinutes : null) : meanOf(win.filter(synced).map(f => f.workoutMinutes)),
+    daylightMinutes: windowDays === 1 ? fit?.daylightMinutes ?? null : meanOf(win.map(f => f.daylightMinutes)),
+    hrvMs: windowDays === 1 ? fit?.hrvMs ?? null : meanOf(win.map(f => f.hrvMs)),
+    hrvBaselineMs: hrvBaseline(fitness, today),
     weather,
     logCount: entries.length,
   };
 }
 const avgOf = (xs: (number | null | undefined)[]) => { const v = xs.filter((x): x is number => typeof x === 'number' && x > 0); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+const meanOf = (xs: (number | null | undefined)[]) => { const v = xs.filter((x): x is number => typeof x === 'number' && Number.isFinite(x)); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+const synced = (f: DailyFitnessEntry) => f.steps > 0 || f.sleepHours != null || f.restingHeartRate != null || f.hrvMs != null || f.workoutMinutes > 0;
+/** The user's typical HRV: median of the 30 days before today. Needs 5+ readings. */
+function hrvBaseline(fitness: DailyFitnessEntry[], today: string): number | null {
+  const from = addDays(today, -30);
+  const v = fitness.filter(f => f.date >= from && f.date < today && f.hrvMs != null).map(f => f.hrvMs!).sort((a, b) => a - b);
+  return v.length >= 5 ? v[Math.floor(v.length / 2)] : null;
+}
 
 export const SCALE_INDEX = (score: number) => score < 50 ? 0 : score < 60 ? 1 : score < 67 ? 2 : score < 76 ? 3 : 4;
 

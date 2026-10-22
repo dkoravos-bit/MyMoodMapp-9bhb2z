@@ -15,9 +15,16 @@
  *  - Volatility is wind and tide — never lightning or strobing.
  *  - Rewards logging, not being happy. Missed days leave no mark.
  *  - No raw health labels are ever sent to an image provider — only shapes and colours.
+ *  - Missing health data is never drawn as a bad value: unknown sleep shows faint neutral stars,
+ *    unknown daylight / HRV simply leave their element out.
+ *
+ * v2 (Oct 2026): sun = time in daylight, halo/mist = HRV vs your own baseline,
+ * trails = steps + workouts, and the legend knows when sleep isn't connected.
  */
 
-export const SPEC_VERSION = 1;
+export const SPEC_VERSION = 2;
+/** Composition seed version — kept at 1 so each user's composition stays theirs across spec updates. */
+const SEED_VERSION = 1;
 
 export type Tone = 'mirror' | 'calm' | 'lift';
 export type ArtLayer = 'now' | 'week' | 'month';
@@ -39,6 +46,13 @@ export interface ArtInput {
   tags: string[];
   sleepHours?: number | null;
   steps?: number | null;
+  /** Minutes in daylight (Apple Watch, iOS 17+). */
+  daylightMinutes?: number | null;
+  /** Workout minutes in the window (per day when averaged). */
+  workoutMinutes?: number | null;
+  /** Heart rate variability and the user's own typical level (ms). */
+  hrvMs?: number | null;
+  hrvBaselineMs?: number | null;
   /** Free-form weather condition, e.g. 'clear', 'rain', 'cloudy'. */
   weather?: string | null;
   /** Total number of logs the user has ever made. */
@@ -61,6 +75,12 @@ export interface Traits {
   stars: number;
   /** 0–3 */
   trails: number;
+  /** false when there is no sleep data (stars are then neutral, not "bad sleep"). */
+  sleepKnown: boolean;
+  /** Time in daylight 0–3, null when unknown. */
+  sun: number | null;
+  /** HRV vs the user's own baseline, null when unknown. */
+  recovery: 'low' | 'usual' | 'high' | null;
   sky: 'clear' | 'cloud' | 'rain' | 'snow' | 'fog' | null;
   tone: Tone;
 }
@@ -112,6 +132,11 @@ export function toTraits(input: ArtInput, tone: Tone = 'mirror'): Traits {
   const sd = input.volatilitySd;
   const sleep = input.sleepHours ?? null;
   const steps = input.steps ?? null;
+  const workout = input.workoutMinutes ?? null;
+  const daylight = input.daylightMinutes ?? null;
+  const hrv = input.hrvMs ?? null, base = input.hrvBaselineMs ?? null;
+  const stepTrails = steps == null ? 0 : steps >= 10000 ? 3 : steps >= 6000 ? 2 : steps >= 2500 ? 1 : 0;
+  const workoutTrails = workout == null ? 0 : workout >= 45 ? 3 : workout >= 20 ? 2 : workout > 0 ? 1 : 0;
   return {
     v: SPEC_VERSION,
     scoreBucket: clamp(Math.round(input.score / 5) * 5, 0, 100),
@@ -123,7 +148,10 @@ export function toTraits(input: ArtInput, tone: Tone = 'mirror'): Traits {
     trend: input.trendPerDay > 0.8 ? 'rising' : input.trendPerDay < -0.8 ? 'settling' : 'steady',
     motifs,
     stars: sleep == null ? 1 : sleep >= 7.5 ? 3 : sleep >= 6.5 ? 2 : sleep >= 5 ? 1 : 0,
-    trails: steps == null ? 0 : steps >= 10000 ? 3 : steps >= 6000 ? 2 : steps >= 2500 ? 1 : 0,
+    trails: Math.max(stepTrails, workoutTrails),
+    sleepKnown: sleep != null,
+    sun: daylight == null ? null : daylight >= 60 ? 3 : daylight >= 30 ? 2 : daylight >= 10 ? 1 : 0,
+    recovery: hrv == null || base == null || base <= 0 ? null : hrv >= base * 1.1 ? 'high' : hrv <= base * 0.9 ? 'low' : 'usual',
     sky: weatherBucket(input.weather),
     tone,
   };
@@ -220,26 +248,36 @@ export function archetype(t: Traits): Archetype {
 const AIR_WORD = { still: 'calm water', breeze: 'a gentle breeze', wind: 'wind and tide' } as const;
 const DECILE_WORD = (d: number, lo: string, mid: string, hi: string) => d >= 7 ? hi : d >= 4 ? mid : lo;
 
-export interface LegendRow { label: string; meaning: string; key: 'mind' | 'energy' | 'body' | 'focus' | 'air' | 'stars' | 'trails' | 'motif' }
+export interface LegendRow { label: string; meaning: string; key: 'mind' | 'energy' | 'body' | 'focus' | 'air' | 'stars' | 'trails' | 'sun' | 'recovery' | 'motif' }
+
+const SUN_LABEL = ['A hidden sun', 'A low sun', 'Bright sun', 'Brilliant sun'];
 
 /** The legend, generated from the same traits as the art. */
-export function legend(t: Traits): LegendRow[] {
+export function legend(t: Traits, layer: ArtLayer = 'now'): LegendRow[] {
+  const day = layer === 'now';
   const rows: LegendRow[] = [
     { key: 'mind', label: DECILE_WORD(t.mind, 'Hazy sky', 'Soft sky', 'Clear sky'), meaning: `Mind ${t.mind * 10}` },
     { key: 'energy', label: DECILE_WORD(t.energy, 'Slow current', 'Unhurried current', 'Quick current'), meaning: `Energy ${t.energy * 10}` },
     { key: 'body', label: DECILE_WORD(t.body, 'Cool glow', 'Soft glow', 'Warm glow'), meaning: `Body ${t.body * 10}` },
     { key: 'focus', label: DECILE_WORD(t.focus, 'Scattered strokes', 'Loose streams', 'Smooth streams'), meaning: `Focus ${t.focus * 10}` },
     { key: 'air', label: AIR_WORD[t.air][0].toUpperCase() + AIR_WORD[t.air].slice(1), meaning: t.air === 'still' ? 'Even days lately' : t.air === 'breeze' ? 'Some ups and downs' : 'Big swings lately' },
-    { key: 'stars', label: ['No stars', 'A few stars', 'Starry', 'Full of stars'][t.stars], meaning: 'Last night\'s sleep' },
+    t.sleepKnown
+      ? { key: 'stars', label: ['No stars', 'A few stars', 'Starry', 'Full of stars'][t.stars], meaning: day ? 'Last night\'s sleep' : 'Your sleep' }
+      : { key: 'stars', label: 'Faint stars', meaning: 'Sleep isn\'t connected — connect Apple Health or Health Connect' },
   ];
-  if (t.trails > 0) rows.push({ key: 'trails', label: ['', 'A faint path', 'A clear path', 'Many paths'][t.trails], meaning: 'Steps today' });
+  if (t.sun != null) rows.push({ key: 'sun', label: SUN_LABEL[t.sun], meaning: day ? 'Time in daylight today' : 'Time in daylight' });
+  if (t.trails > 0) rows.push({ key: 'trails', label: ['', 'A faint path', 'A clear path', 'Many paths'][t.trails], meaning: day ? 'Steps and workouts today' : 'Steps and workouts' });
+  if (t.recovery === 'high') rows.push({ key: 'recovery', label: 'A soft halo', meaning: 'Well rested — heart rate variability above your usual' });
+  if (t.recovery === 'low') rows.push({ key: 'recovery', label: 'Low mist', meaning: 'Recovering — heart rate variability below your usual' });
   for (const m of t.motifs) rows.push({ key: 'motif', label: MOTIF_LABEL[m]?.split(' — ')[0] ?? m, meaning: MOTIF_LABEL[m]?.split(' — ')[1] ?? '' });
   return rows;
 }
 
 export function altText(t: Traits): string {
   const p = COLOR_WORD(toneScore(t));
-  return `Mood art: a ${p} sea and sky with ${AIR_WORD[t.air]}, ${['no', 'a few', 'many', 'countless'][t.stars]} stars` +
+  return `Mood art: a ${p} sea and sky with ${AIR_WORD[t.air]}, ${t.sleepKnown ? ['no', 'a few', 'many', 'countless'][t.stars] : 'a few faint'} stars` +
+    (t.sun != null ? `, ${SUN_LABEL[t.sun].toLowerCase()}` : '') +
+    (t.trails > 0 ? `, ${['', 'a faint path', 'a clear path', 'many paths'][t.trails]}` : '') +
     (t.motifs.length ? `, and ${t.motifs.join(', ')}` : '') + '.';
 }
 
@@ -261,8 +299,12 @@ export function platePrompt(t: Traits, layer: ArtLayer): string {
   const water = t.air === 'still' ? 'mirror-calm water' : t.air === 'breeze' ? 'gently rippling water' : 'long rolling swells, no storm';
   const flow = DECILE_WORD(t.focus, 'loose scattered brushstrokes', 'flowing brushstrokes', 'smooth laminar streams of light');
   const glow = DECILE_WORD(t.body, 'cool soft light', 'gentle glow', 'warm luminous glow');
-  const stars = ['no stars', 'a few faint stars', 'many stars', 'a dense field of stars'][t.stars];
+  const stars = t.sleepKnown ? ['no stars', 'a few faint stars', 'many stars', 'a dense field of stars'][t.stars] : 'a few faint stars';
   const motifs = t.motifs.map(m => MOTIF_PROMPT[m]).filter(Boolean);
+  if (t.trails > 0) motifs.push(['', 'one thin glowing path winding along the shore', 'two glowing paths winding along the shore', 'several glowing paths winding through the hills and shore'][t.trails]);
+  const sun = t.sun == null ? null : ['the sun hidden low behind soft cloud', 'a low soft sun near the horizon', 'bright sunlight glittering across the water', 'brilliant sunlight and sparkling water'][t.sun];
+  const atmosphere = t.recovery === 'high' ? 'deep stillness, a soft luminous halo glowing in the sky'
+    : t.recovery === 'low' ? 'a light veil of low mist drifting over the water' : null;
   const scene = layer === 'now'
     ? 'wide coastal seascape seen from a quiet shore'
     : layer === 'week' ? 'panoramic aerial coastline with seven gentle headlands receding into distance'
@@ -275,6 +317,8 @@ export function platePrompt(t: Traits, layer: ArtLayer): string {
     water,
     light: glow,
     texture: flow,
+    ...(sun ? { sunlight: sun } : {}),
+    ...(atmosphere ? { atmosphere } : {}),
     horizon: t.trend === 'rising' ? 'horizon warming and brightening' : t.trend === 'settling' ? 'horizon cooling into soft violet' : 'balanced even horizon',
     details: motifs,
     palette_hex: p.hexes,
@@ -285,7 +329,8 @@ export function platePrompt(t: Traits, layer: ArtLayer): string {
 
 /** Deterministic cache key — same traits ⇒ same file, no regeneration. */
 export function cacheKey(userId: string, layer: ArtLayer, t: Traits, period: string): string {
-  const sig = [t.v, layer, period, t.scoreBucket, t.mind, t.energy, t.body, t.focus, t.air, t.trend, t.stars, t.trails, t.sky ?? '-', t.tone, ...t.motifs].join('.');
+  const sig = [t.v, layer, period, t.scoreBucket, t.mind, t.energy, t.body, t.focus, t.air, t.trend, t.stars, t.trails, t.sky ?? '-', t.tone,
+    t.sleepKnown ? 1 : 0, t.sun ?? '-', t.recovery ?? '-', ...t.motifs].join('.');
   let h = 2166136261;
   for (let i = 0; i < sig.length; i++) { h ^= sig.charCodeAt(i); h = Math.imul(h, 16777619); }
   return `${userId}/${layer}/${period}-${(h >>> 0).toString(36)}`;
@@ -294,7 +339,7 @@ export function cacheKey(userId: string, layer: ArtLayer, t: Traits, period: str
 /** Stable per-user, per-layer seed (Fidenza-style: each user's composition is their own). */
 export function seedFor(userId: string, layer: ArtLayer): number {
   let h = 5381;
-  const s = `${userId}:${layer}:${SPEC_VERSION}`;
+  const s = `${userId}:${layer}:${SEED_VERSION}`;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
   return h % 2147483647;
 }

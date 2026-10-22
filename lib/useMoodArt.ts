@@ -32,7 +32,7 @@ export function useMoodArt(layer: ArtLayer, opts: { fetchPlate?: boolean } = {})
   const traits = useMemo(() => (input ? toTraits(input, tone) : null), [input, tone]);
   const derived = useMemo(() => traits && ({
     palette: palette(traits),
-    legend: legend(traits),
+    legend: legend(traits, layer),
     name: dayName(traits),
     alt: altText(traits),
     archetype: archetype(traits),

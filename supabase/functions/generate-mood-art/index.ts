@@ -41,6 +41,7 @@ const TONES: readonly Tone[] = ['mirror', 'calm', 'lift'];
 const AIRS: readonly Traits['air'][] = ['still', 'breeze', 'wind'];
 const TRENDS: readonly Traits['trend'][] = ['rising', 'steady', 'settling'];
 const SKIES: readonly NonNullable<Traits['sky']>[] = ['clear', 'cloud', 'rain', 'snow', 'fog'];
+const RECOVERY: readonly NonNullable<Traits['recovery']>[] = ['low', 'usual', 'high'];
 
 const PERIOD_RE: Record<ArtLayer, RegExp> = {
   now: /^\d{4}-\d{2}-\d{2}$/,
@@ -97,6 +98,9 @@ function parseTraits(raw: unknown): Traits | string {
     air, trend, motifs,
     stars: int(r.stars, 0, 3) ?? 1,
     trails: int(r.trails, 0, 3) ?? 0,
+    sleepKnown: r.sleepKnown === true,
+    sun: r.sun == null ? null : int(r.sun, 0, 3),
+    recovery: r.recovery == null ? null : oneOf(r.recovery, RECOVERY),
     sky: r.sky == null ? null : oneOf(r.sky, SKIES),
     tone: oneOf(r.tone, TONES) ?? 'mirror',
   };

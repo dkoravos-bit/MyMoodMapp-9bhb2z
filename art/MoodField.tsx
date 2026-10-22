@@ -2,7 +2,8 @@
  * MoodField — the living art.
  *
  * Layer 1: AI style plate (optional, crossfades in when ready)
- * Layer 2: procedural field — sky gradient, drifting light, stars, tide
+ * Layer 2: procedural field — sky gradient, drifting light, sun (daylight), stars (sleep),
+ *          paths (steps + workouts), tide (ups and downs), halo / mist (HRV vs your usual)
  * Layer 3: the four-lobe compass "blob" that breathes at the user's energy tempo
  *
  * Built on react-native-svg + Reanimated (both already native in the app),
@@ -14,10 +15,10 @@ import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, useReducedMotion, withSequence,
 } from 'react-native-reanimated';
-import Svg, { Defs, RadialGradient, Stop, Circle, Path, Rect, LinearGradient } from 'react-native-svg';
+import Svg, { Defs, RadialGradient, Stop, Circle, Ellipse, Path, Rect, LinearGradient } from 'react-native-svg';
 import { Image } from 'expo-image';
 import type { Palette, Traits } from '@/supabase/functions/_shared/moodArtSpec';
-import { BRAND } from '@/supabase/functions/_shared/moodArtSpec';
+import { BRAND, mixHex } from '@/supabase/functions/_shared/moodArtSpec';
 
 export interface FieldDims { mind: number; energy: number; body: number; focus: number }
 
@@ -57,15 +58,33 @@ export function MoodField({
 
   const stars = useMemo(() => {
     const r = seeded(seed * 31 + traits.stars);
-    const n = [3, 10, 22, 40][traits.stars];
-    return Array.from({ length: n }, () => ({ x: r() * width, y: r() * height * 0.45, s: 0.6 + r() * 1.3, o: 0.35 + r() * 0.55 }));
-  }, [seed, traits.stars, width, height]);
+    // Unknown sleep = a few faint neutral stars (never drawn as "bad sleep").
+    const n = traits.sleepKnown === false ? 6 : [3, 10, 22, 40][traits.stars];
+    const dim = traits.sleepKnown === false ? 0.45 : 1;
+    return Array.from({ length: n }, () => ({ x: r() * width, y: r() * height * 0.45, s: 0.6 + r() * 1.3, o: (0.35 + r() * 0.55) * dim }));
+  }, [seed, traits.stars, traits.sleepKnown, width, height]);
+
+  // Paths = steps + workouts: thin glowing trails winding from the shore toward the horizon.
+  const trails = useMemo(() => {
+    const r = seeded(seed * 53 + traits.trails);
+    return Array.from({ length: traits.trails ?? 0 }, (_, i) => {
+      const x0 = width * (0.12 + r() * 0.76), y0 = height * 0.98;
+      const x1 = width * (0.3 + r() * 0.4), y1 = height * (0.7 - i * 0.015);
+      const cx = x0 + (r() - 0.5) * width * 0.6, cy = height * (0.84 + r() * 0.06);
+      return `M ${x0} ${y0} Q ${cx} ${cy} ${x1} ${y1}`;
+    });
+  }, [seed, traits.trails, width, height]);
+  const sunLevel = traits.sun ?? null;
+  const sunColor = mixHex(palette.horizon, '#FFD27A', 0.55);
 
   // Compass lobes: distance and size from each dimension. Overlapping soft-edged
   // gradients read as one gooey shape without SVG filters (which differ across platforms).
-  const c = compassSize / 2;
-  const reach = (v: number) => c * (0.22 + v * 0.44);
-  const rad = (v: number) => c * (0.2 + v * 0.22);
+  // The lobes' soft edges reach past the compass box, so draw on a larger canvas (no clipping = no square edges).
+  const pad = compassSize * 0.35;
+  const c = compassSize / 2 + pad;
+  const cr = compassSize / 2;
+  const reach = (v: number) => cr * (0.22 + v * 0.44);
+  const rad = (v: number) => cr * (0.2 + v * 0.22);
   const lobes = [
     { key: 'mind', x: c, y: c - reach(dims.mind), r: rad(dims.mind), color: BRAND.mind },
     { key: 'energy', x: c + reach(dims.energy), y: c, r: rad(dims.energy), color: BRAND.energy },
@@ -114,7 +133,22 @@ export function MoodField({
         </Svg>
       </Animated.View>
 
-      {/* Stars = last night's sleep */}
+      {/* Sun = time in daylight (only when known) */}
+      {sunLevel != null ? (
+        <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" pointerEvents="none">
+          <Defs>
+            <RadialGradient id={`${U}sun`} cx="50%" cy="50%" r="50%">
+              <Stop offset="0" stopColor="#FFF4D6" stopOpacity={0.35 + sunLevel * 0.2} />
+              <Stop offset="0.25" stopColor={sunColor} stopOpacity={0.25 + sunLevel * 0.15} />
+              <Stop offset="1" stopColor={sunColor} stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx={width * 0.74} cy={height * (0.66 - sunLevel * 0.06)} r={width * (0.16 + sunLevel * 0.1)} fill={`url(#${U}sun)`} />
+          {sunLevel >= 2 ? <Ellipse cx={width * 0.74} cy={height * 0.735} rx={width * (0.12 + sunLevel * 0.04)} ry={height * 0.014} fill={`url(#${U}sun)`} opacity={0.9} /> : null}
+        </Svg>
+      ) : null}
+
+      {/* Stars = sleep */}
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" pointerEvents="none">
         {stars.map((s, i) => <Circle key={i} cx={s.x} cy={s.y} r={s.s} fill={BRAND.ink} opacity={s.o} />)}
       </Svg>
@@ -127,11 +161,32 @@ export function MoodField({
         </Svg>
       </Animated.View>
 
+      {/* Paths = steps + workouts */}
+      {trails.length ? (
+        <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" pointerEvents="none">
+          {trails.map((d, i) => <Path key={i} d={d} stroke={palette.light} strokeOpacity={0.5} strokeWidth={1.6} strokeLinecap="round" strokeDasharray="1 5" fill="none" />)}
+        </Svg>
+      ) : null}
+
+      {/* Low mist = HRV below your usual (recovering) */}
+      {traits.recovery === 'low' ? (
+        <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none" pointerEvents="none">
+          <Defs>
+            <LinearGradient id={`${U}mist`} x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={palette.light} stopOpacity="0" />
+              <Stop offset="0.5" stopColor={palette.light} stopOpacity="0.22" />
+              <Stop offset="1" stopColor={palette.light} stopOpacity="0" />
+            </LinearGradient>
+          </Defs>
+          <Rect x="0" y={height * 0.6} width="100%" height={height * 0.2} fill={`url(#${U}mist)`} />
+        </Svg>
+      ) : null}
+
       {/* Compass blob */}
       {showCompass ? (
         <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', paddingBottom: height * 0.1 }]} pointerEvents="none">
           <Animated.View style={[{ width: compassSize, height: compassSize }, breatheStyle]}>
-            <Svg width={compassSize} height={compassSize}>
+            <Svg width={compassSize + pad * 2} height={compassSize + pad * 2} style={{ position: 'absolute', left: -pad, top: -pad }}>
               <Defs>
                 {lobes.map(l => (
                   <RadialGradient key={l.key} id={`${U}g-${l.key}`} cx="50%" cy="50%" r="50%">
@@ -146,8 +201,10 @@ export function MoodField({
                   <Stop offset="1" stopColor={palette.light} stopOpacity="0" />
                 </RadialGradient>
               </Defs>
+              {/* Soft halo = HRV above your usual (well rested) */}
+              {traits.recovery === 'high' ? <Circle cx={c} cy={c} r={cr * 0.98} fill="none" stroke={palette.light} strokeOpacity={0.35} strokeWidth={2} /> : null}
               {lobes.map(l => <Circle key={l.key} cx={l.x} cy={l.y} r={l.r * 1.35} fill={`url(#${U}g-${l.key})`} />)}
-              <Circle cx={c} cy={c} r={c * 0.5} fill={`url(#${U}core)`} />
+              <Circle cx={c} cy={c} r={cr * 0.5} fill={`url(#${U}core)`} />
             </Svg>
           </Animated.View>
         </View>

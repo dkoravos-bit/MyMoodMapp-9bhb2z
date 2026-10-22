@@ -21,6 +21,12 @@ export default function Today() {
   const { moodLogEntries, todayMoodLogEntries, weatherData, displayName, tempUnit } = useApp();
   const fitnessData = useRealFitness();
   const art = useMoodArt('now', { fetchPlate: true });
+  const week = useMoodArt('week', { fetchPlate: true });
+  const weekDays = useMemo(() => {
+    const from = new Date(); from.setDate(from.getDate() - 6);
+    const cutoff = localDate(from);
+    return new Set(moodLogEntries.filter(e => e.date >= cutoff).map(e => e.date)).size;
+  }, [moodLogEntries]);
   const streak = useMemo(() => forgivingStreak(moodLogEntries), [moodLogEntries]);
   const drivers = useMemo(() => computeDrivers(moodLogEntries, fitnessData), [moodLogEntries, fitnessData]);
   const todayFit = fitnessData.find(f => f.date === localDate()) ?? null;
@@ -92,6 +98,20 @@ export default function Today() {
           </Row>
         </Row>
       </Card>
+
+      {/* Your week, painted — appears once there are two days to compare */}
+      {week.palette && week.traits && week.input && weekDays >= 2 ? (
+        <Pressable accessibilityRole="button" accessibilityLabel={`Your week. ${week.alt}`} onPress={() => { tap(); router.push('/(tabs)/mapp'); }}>
+          <MoodField palette={week.palette} traits={week.traits} plateUrl={week.plateUrl} showCompass={false}
+            dims={{ mind: week.input.mind, energy: week.input.energy, body: week.input.body, focus: week.input.focus }}
+            height={Math.round((width - 40) * 9 / 16)} width={width - 40} seed={11} style={{ borderRadius: R.xl, borderWidth: 1, borderColor: C.line }}>
+            <View style={{ position: 'absolute', left: 18, right: 18, bottom: 14, gap: 2 }}>
+              <Eyebrow color={C.inkSoft}>{`This week · ${weekDays} ${weekDays === 1 ? 'day' : 'days'} · ${week.input.score}`}</Eyebrow>
+              <Text style={[T.h3, { color: C.ink }]}>{week.name}</Text>
+            </View>
+          </MoodField>
+        </Pressable>
+      ) : null}
 
       <Card>
         <Eyebrow color={C.focusInk}>Today's nudge</Eyebrow>

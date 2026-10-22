@@ -6,7 +6,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import { View, Text, Platform, useWindowDimensions, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Path, Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
+import Svg, { Path, Defs, RadialGradient, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { Image } from 'expo-image';
 import ViewShot from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import * as MediaLibrary from 'expo-media-library';
@@ -26,7 +27,7 @@ export default function Wrapped() {
   const { width } = useWindowDimensions();
   const { moodLogEntries } = useApp();
   const fitnessData = useRealFitness();
-  const art = useMoodArt('month');
+  const art = useMoodArt('month', { fetchPlate: true });
   const shot = useRef<ViewShot>(null);
   const [stats, setStats] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -73,7 +74,23 @@ export default function Wrapped() {
       <View style={{ alignItems: 'center' }}>
         <ViewShot ref={shot} options={{ format: 'png', quality: 1 }}>
           <View style={{ width: cardW, height: cardH, borderRadius: R.xl, overflow: 'hidden', backgroundColor: C.bg, padding: S.xl, gap: S.lg }}>
-            <Svg style={{ position: 'absolute', left: 0, top: 0 }} width={cardW} height={cardH}>
+            {/* Your month's AI painting, behind the card (darkened so the text stays readable) */}
+            {art.plateUrl ? (
+              <>
+                <Image source={{ uri: art.plateUrl }} style={{ position: 'absolute', left: 0, top: 0, width: cardW, height: cardH }} contentFit="cover" transition={600} accessibilityIgnoresInvertColors />
+                <Svg style={{ position: 'absolute', left: 0, top: 0 }} width={cardW} height={cardH}>
+                  <Defs>
+                    <LinearGradient id={`${U}shade`} x1="0" y1="0" x2="0" y2="1">
+                      <Stop offset="0" stopColor={C.bg} stopOpacity="0.55" />
+                      <Stop offset="0.45" stopColor={C.bg} stopOpacity="0.35" />
+                      <Stop offset="1" stopColor={C.bg} stopOpacity="0.85" />
+                    </LinearGradient>
+                  </Defs>
+                  <Rect width="100%" height="100%" fill={`url(#${U}shade)`} />
+                </Svg>
+              </>
+            ) : null}
+            <Svg style={{ position: 'absolute', left: 0, top: 0, opacity: art.plateUrl ? 0.5 : 1 }} width={cardW} height={cardH}>
               <Defs>
                 <RadialGradient id={`${U}a`} cx="15%" cy="8%" r="45%"><Stop offset="0" stopColor={C.energy} stopOpacity="0.4" /><Stop offset="1" stopColor={C.energy} stopOpacity="0" /></RadialGradient>
                 <RadialGradient id={`${U}b`} cx="95%" cy="45%" r="45%"><Stop offset="0" stopColor={p?.accent ?? C.focus} stopOpacity="0.4" /><Stop offset="1" stopColor={C.focus} stopOpacity="0" /></RadialGradient>
