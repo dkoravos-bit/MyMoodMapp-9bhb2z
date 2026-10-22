@@ -1,82 +1,63 @@
 /**
- * transcribe-voice edge function
- * Uses Groq's Whisper API (free tier: 7,200 requests/day) for audio transcription.
+ * transcribe-voice — speech-to-text via Cloudflare Workers AI Whisper.
+ *
+ * Model: @cf/openai/whisper-large-v3-turbo
+ *   REST: POST /accounts/{id}/ai/run/@cf/openai/whisper-large-v3-turbo
+ *         JSON { audio: <base64 string>, task: 'transcribe', language, vad_filter }
+ *   → { success, result: { text, word_count, segments, vtt, transcription_info } }
+ *
+ * Contract (unchanged): body { audioBase64, mimeType } → { transcript }.
  */
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { corsHeaders } from '../_shared/cors.ts';
+import { json, preflight, readJson, requireUser } from '../_shared/http.ts';
+
+const MODEL = '@cf/openai/whisper-large-v3-turbo';
+/** ~18 MB of audio once decoded; voice logs are short. */
+const MAX_BASE64_CHARS = 24_000_000;
 
 serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  const pre = preflight(req);
+  if (pre) return pre;
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
   try {
-    const { audioBase64, mimeType = 'audio/m4a' } = await req.json();
+    const auth = await requireUser(req);
+    if (auth instanceof Response) return auth;
 
-    if (!audioBase64) {
-      return new Response(
-        JSON.stringify({ error: 'audioBase64 is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const body = await readJson(req);
+    if (!body) return json({ error: 'Invalid JSON body' }, 400);
 
-    const apiKey = Deno.env.get('GROQ_API_KEY');
-    if (!apiKey) {
-      return new Response(
-        JSON.stringify({ error: 'Groq API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const raw = typeof body.audioBase64 === 'string' ? body.audioBase64 : '';
+    // Strip a data: URL prefix and whitespace if the client sent one.
+    const audio = raw.replace(/^data:[^,]+,/, '').replace(/\s+/g, '');
+    if (!audio) return json({ error: 'audioBase64 is required' }, 400);
+    if (audio.length > MAX_BASE64_CHARS) return json({ error: 'Audio is too long' }, 413);
+    // mimeType is accepted for contract compatibility; Whisper detects the container itself.
 
-    // Decode base64 to binary
-    const binaryString = atob(audioBase64);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
+    const accountId = Deno.env.get('CLOUDFLARE_ACCOUNT_ID');
+    const token = Deno.env.get('CLOUDFLARE_AI_API_TOKEN');
+    if (!accountId || !token) return json({ error: 'Transcription is not configured' }, 500);
 
-    // Determine file extension from mimeType
-    const ext = mimeType.split('/')[1]?.split(';')[0] ?? 'm4a';
-    const filename = `audio.${ext}`;
-
-    // Build multipart form data
-    const formData = new FormData();
-    const audioBlob = new Blob([bytes], { type: mimeType });
-    formData.append('file', audioBlob, filename);
-    formData.append('model', 'whisper-large-v3-turbo');
-    formData.append('response_format', 'json');
-    formData.append('language', 'en');
-
-    const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+    const resp = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${MODEL}`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: formData,
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audio, task: 'transcribe', language: 'en', vad_filter: true }),
+      signal: AbortSignal.timeout(60000),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Groq error:', errText);
-      return new Response(
-        JSON.stringify({ error: `Groq: ${errText}` }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!resp.ok) {
+      console.error(`[transcribe] Cloudflare HTTP ${resp.status}: ${(await resp.text().catch(() => '')).slice(0, 300)}`);
+      return json({ error: 'Transcription failed' }, 502);
     }
 
-    const data = await response.json();
-    const transcript = (data.text ?? '').trim();
+    const data = await resp.json().catch(() => null) as
+      { success?: boolean; result?: { text?: string } } | null;
+    if (!data?.success) return json({ error: 'Transcription failed' }, 502);
 
-    return new Response(
-      JSON.stringify({ transcript }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  } catch (err) {
-    console.error('transcribe-voice error:', err);
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    const transcript = (data.result?.text ?? '').trim();
+    return json({ transcript });
+  } catch (e) {
+    console.error('[transcribe] error:', e instanceof Error ? e.message : String(e));
+    return json({ error: 'Unexpected error' }, 500);
   }
 });

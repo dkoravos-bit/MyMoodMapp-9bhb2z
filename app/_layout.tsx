@@ -55,6 +55,8 @@ import { summarizeFitnessData, getDateRangeFitness } from '@/services/fitness';
 import { updateUserProfile } from '@/services/sync';
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFonts, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 
 import {
   configureNotificationHandler,
@@ -120,6 +122,8 @@ class ErrorBoundaryInner extends React.Component<
 }
 const ErrorBoundary = Sentry.wrap(ErrorBoundaryInner as any) as typeof ErrorBoundaryInner;
 
+const PREVIEW = process.env.EXPO_PUBLIC_PREVIEW === '1';
+
 function RootNavigator() {
   const router = useRouter();
   const segments = useSegments();
@@ -158,6 +162,13 @@ function RootNavigator() {
     const inOnboarding = segments[0] === 'onboarding';
     const inLogin = segments[0] === 'login';
     const inLanding = segments[0] === 'landing';
+
+    if (!user && PREVIEW) {
+      // Local design preview only (EXPO_PUBLIC_PREVIEW=1, never set in store builds).
+      if (!onboardingDone && !inOnboarding) router.replace('/onboarding');
+      else if (onboardingDone && (inOnboarding || inLogin || inLanding)) router.replace('/(tabs)');
+      return;
+    }
 
     if (!user) {
       if (hadSessionRef.current) {
@@ -321,7 +332,7 @@ function RootNavigator() {
           if (screen) {
             try { router.push(screen as any); } catch {}
           } else {
-            router.push('/(tabs)/checkin');
+            router.push('/log');
           }
         });
       } catch {}
@@ -337,18 +348,21 @@ function RootNavigator() {
       onAllow={() => setShowNotifPrompt(false)}
       onSkip={() => setShowNotifPrompt(false)}
     />
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#07080F' } }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="landing" options={{ headerShown: false }} />
       <Stack.Screen name="onboarding" />
+      <Stack.Screen name="log" options={{ presentation: 'modal', headerShown: false }} />
+      <Stack.Screen name="voice" options={{ presentation: 'modal', headerShown: false }} />
+      <Stack.Screen name="reveal" options={{ headerShown: false, animation: 'fade' }} />
+      <Stack.Screen name="wrapped" options={{ presentation: 'modal', headerShown: false }} />
+      <Stack.Screen name="experiment" options={{ headerShown: false }} />
+      <Stack.Screen name="share-care" options={{ headerShown: false }} />
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
+      <Stack.Screen name="plans" options={{ headerShown: false }} />
       <Stack.Screen name="quiz" />
       <Stack.Screen name="result" />
-      <Stack.Screen name="vibe-card-viewer" options={{ presentation: 'modal', headerShown: false }} />
-      <Stack.Screen name="schumann-detail" options={{ headerShown: false }} />
-      <Stack.Screen name="astrology-detail" options={{ headerShown: false }} />
-      <Stack.Screen name="fitness-detail" options={{ headerShown: false }} />
-      <Stack.Screen name="weather-detail" options={{ headerShown: false }} />
       <Stack.Screen name="accountability" options={{ headerShown: false }} />
       <Stack.Screen name="buddy-activity" options={{ headerShown: false }} />
       <Stack.Screen name="therapist-dashboard" options={{ headerShown: false }} />
@@ -362,7 +376,19 @@ function RootNavigator() {
   );
 }
 
+/** On wide web screens the app sits in a phone-width column on the night ground. */
+function WebFrame({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== 'web') return <>{children}</>;
+  return (
+    <View style={{ flex: 1, backgroundColor: '#07080F', alignItems: 'center' }}>
+      <View style={{ flex: 1, width: '100%', maxWidth: 480, overflow: 'hidden' }}>{children}</View>
+    </View>
+  );
+}
+
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({ Sora_600SemiBold, Sora_700Bold, Inter_400Regular, Inter_500Medium, Inter_600SemiBold });
+  if (!fontsLoaded) return <View style={{ flex: 1, backgroundColor: '#07080F' }} />;
   try {
     return (
       <ErrorBoundary>
@@ -371,8 +397,8 @@ export default function RootLayout() {
             <AuthProvider>
               <SafeAreaProvider>
                 <AppProvider>
-                  <ThemedStatusBar />
-                  <RootNavigator />
+                  <StatusBar style="light" />
+                  <WebFrame><RootNavigator /></WebFrame>
                 </AppProvider>
               </SafeAreaProvider>
             </AuthProvider>
