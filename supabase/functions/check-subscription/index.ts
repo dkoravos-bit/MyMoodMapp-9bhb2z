@@ -14,8 +14,8 @@ const logStep = (step: string, details?: any) => {
 
 // Map Stripe product IDs to subscription tiers
 const PRODUCT_TIER_MAP: Record<string, string> = {
-  "prod_URZOYtZGtX4wpE": "pro",
-  "prod_URZO12L9oGdpQQ": "therapist_pro",
+  "prod_VU7sRej61SAdII": "pro",
+  "prod_VU7tkjhsUSa57P": "therapist_pro",
 };
 
 serve(async (req) => {
@@ -101,18 +101,24 @@ serve(async (req) => {
       limit: 5,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
+    // This Stripe account is shared with other Kairos apps, so only count
+    // subscriptions to MyMoodMapp's own products.
+    const mmmSubs = subscriptions.data.filter(s =>
+      s.items.data.some(item => PRODUCT_TIER_MAP[item.price.product as string])
+    );
+    const hasActiveSub = mmmSubs.length > 0;
     let productId: string | null = null;
     let subscriptionEnd: string | null = null;
     let tier = "free";
 
     if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
+      const subscription = mmmSubs[0];
       const periodEnd = (subscription as any).current_period_end ||
         subscription.items.data[0]?.current_period_end;
       subscriptionEnd = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
-      productId = subscription.items.data[0].price.product as string;
-      tier = PRODUCT_TIER_MAP[productId] ?? "pro";
+      const mmmItem = subscription.items.data.find(item => PRODUCT_TIER_MAP[item.price.product as string])!;
+      productId = mmmItem.price.product as string;
+      tier = PRODUCT_TIER_MAP[productId];
       logStep("Active subscription found", { productId, tier, subscriptionEnd });
 
       // Sync to subscriptions table

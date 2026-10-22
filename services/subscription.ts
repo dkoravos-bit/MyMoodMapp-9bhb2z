@@ -11,15 +11,15 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 // Product/price IDs
 export const SUBSCRIPTION_PLANS = {
   pro: {
-    priceId: 'price_1TSgFzGlgVGOe4h7riJt7as1',
-    productId: 'prod_URZOYtZGtX4wpE',
+    priceId: 'price_1UT9ciKglKuQAKoXjVBFBrqH',
+    productId: 'prod_VU7sRej61SAdII',
     name: 'Pro',
     price: '$3.99/mo',
     description: 'Individual',
   },
   therapist_pro: {
-    priceId: 'price_1TSgG6GlgVGOe4h753sG8r11',
-    productId: 'prod_URZO12L9oGdpQQ',
+    priceId: 'price_1UT9deKglKuQAKoXhDmsPLpE',
+    productId: 'prod_VU7tkjhsUSa57P',
     name: 'Therapist Pro',
     price: '$9.99/mo',
     description: 'Unlimited clients',

@@ -20,8 +20,8 @@ const logStep = (step: string, details?: any) => {
 
 // Map Stripe product IDs to subscription tiers
 const PRODUCT_TIER_MAP: Record<string, string> = {
-  "prod_URZOYtZGtX4wpE": "pro",
-  "prod_URZO12L9oGdpQQ": "therapist_pro",
+  "prod_VU7sRej61SAdII": "pro",
+  "prod_VU7tkjhsUSa57P": "therapist_pro",
 };
 
 async function syncSubscription(
@@ -30,6 +30,14 @@ async function syncSubscription(
   subscription: Stripe.Subscription,
   overrideStatus?: string
 ) {
+  // This Stripe account is shared with other Kairos apps: ignore subscriptions
+  // that aren't for a MyMoodMapp product.
+  const mmmItem = subscription.items.data.find(item => PRODUCT_TIER_MAP[item.price.product as string]);
+  if (!mmmItem) {
+    logStep("Not a MyMoodMapp subscription, ignoring", { subscriptionId: subscription.id });
+    return;
+  }
+
   const { data: userProfile } = await supabase
     .from("user_profiles")
     .select("id")
@@ -44,9 +52,9 @@ async function syncSubscription(
   const periodEnd = (subscription as any).current_period_end ||
     subscription.items.data[0]?.current_period_end;
 
-  const productId = subscription.items.data[0]?.price.product as string;
+  const productId = mmmItem.price.product as string;
   const status = overrideStatus ?? subscription.status;
-  const tier = status === "active" ? (PRODUCT_TIER_MAP[productId] ?? "pro") : "free";
+  const tier = status === "active" ? PRODUCT_TIER_MAP[productId] : "free";
 
   await supabase.from("subscriptions").upsert({
     user_id: userProfile.id,
