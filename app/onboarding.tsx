@@ -244,7 +244,7 @@ export default function OnboardingScreen() {
     return (
       <SafeAreaView style={styles.safe}>
         <Image
-          source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/34Gq4RAVBYknhhDqNrUJGm/4RC8N.jpg' }}
+          source={require('@/assets/images/screens/onboarding_hero.jpg')}
           style={styles.hero}
           contentFit="cover"
           transition={400}
@@ -369,7 +369,7 @@ export default function OnboardingScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <Image
-        source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/34Gq4RAVBYknhhDqNrUJGm/4RC8N.jpg' }}
+        source={require('@/assets/images/screens/onboarding_hero.jpg')}
         style={styles.hero}
         contentFit="cover"
         transition={400}

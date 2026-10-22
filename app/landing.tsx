@@ -37,8 +37,8 @@ const C = {
 };
 
 const MOODPRINT    = require('@/assets/moodprint-icon.png');
-const DARK_MAPP    = { uri: 'https://cdn-ai.onspace.ai/onspace/files/DB3YfdGqKwFTxrBSfaGMLH/dark_05_mapp.jpg' };
-const DARK_DASH    = { uri: 'https://cdn-ai.onspace.ai/onspace/files/kgVXndHKcmab9bb7uKdVjz/dark_01_dashboard.jpg' };
+const DARK_MAPP    = require('@/assets/images/screens/dark_05_mapp.jpg');
+const DARK_DASH    = require('@/assets/images/screens/dark_01_dashboard.jpg');
 const APP_STORE    = 'https://apps.apple.com/us/app/mymoodmapp-81aebc/id6776839488';
 const PLAY_STORE   = 'https://play.google.com/store/apps/details?id=com.mymoodmapp';
 
@@ -75,25 +75,25 @@ const FEATURES = [
 ];
 
 const PHONE_SHOTS = [
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/kgVXndHKcmab9bb7uKdVjz/dark_01_dashboard.jpg',  label: 'Dashboard',    theme: 'Dark' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/QyZi7SHaDtxZMGBKUKJKmG/dark_02_log.jpg',         label: "Log",          theme: 'Dark' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/huXmgFBoTW5uxM9bEjH4PW/dark_03_patterns.jpg',    label: 'Patterns',     theme: 'Dark' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/j8V63eSB83yCWuCTxCaoHQ/dark_04_moodlab.jpg',     label: 'Mood Lab',     theme: 'Dark' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/DB3YfdGqKwFTxrBSfaGMLH/dark_05_mapp.jpg',         label: 'Mapp',         theme: 'Dark' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/kjNYqYtUwtcH5J3R3Woo2n/light_01_dashboard.jpg',  label: 'Dashboard',    theme: 'Light' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/HHxDSaffYHRvfAfJX46EsR/light_02_log.jpg',         label: "Log",          theme: 'Light' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/HRbSWKp6zBkKjxh6f6SwnT/light_03_patterns.jpg',   label: 'Patterns',     theme: 'Light' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/8KMRbVPw3s25N3YPGK9UNe/light_04_moodlab.jpg',    label: 'Mood Lab',     theme: 'Light' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/MyQGw2HE8vAYLvnhfsHmCa/light_05_mapp.jpg',        label: 'Mapp',         theme: 'Light' },
+  { src: require('@/assets/images/screens/dark_01_dashboard.jpg'),  label: 'Dashboard',    theme: 'Dark' },
+  { src: require('@/assets/images/screens/dark_02_log.jpg'),         label: "Log",          theme: 'Dark' },
+  { src: require('@/assets/images/screens/dark_03_patterns.jpg'),    label: 'Patterns',     theme: 'Dark' },
+  { src: require('@/assets/images/screens/dark_04_moodlab.jpg'),     label: 'Mood Lab',     theme: 'Dark' },
+  { src: require('@/assets/images/screens/dark_05_mapp.jpg'),         label: 'Mapp',         theme: 'Dark' },
+  { src: require('@/assets/images/screens/light_01_dashboard.jpg'),  label: 'Dashboard',    theme: 'Light' },
+  { src: require('@/assets/images/screens/light_02_log.jpg'),         label: "Log",          theme: 'Light' },
+  { src: require('@/assets/images/screens/light_03_patterns.jpg'),   label: 'Patterns',     theme: 'Light' },
+  { src: require('@/assets/images/screens/light_04_moodlab.jpg'),    label: 'Mood Lab',     theme: 'Light' },
+  { src: require('@/assets/images/screens/light_05_mapp.jpg'),        label: 'Mapp',         theme: 'Light' },
 ];
 
 const WEB_SHOTS = [
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/GqdHxjkJryK7j9dK28yAGw/ipad_01_dashboard.jpg',  label: 'Dashboard' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/4Xx6iqS7r9Eamk7hMAZKQR/ipad_02_log.jpg',         label: "Today's Log" },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/Ng3Lsg4cwXukAi6uKHTLJr/ipad_03_patterns.jpg',    label: 'Patterns' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/S3mPeXsUe9HTFMqWnVyaep/ipad_04_moodlab.jpg',     label: 'Mood Lab' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/Ea6CEp4ULLLRyT4dvY6eQZ/ipad_05_mapp.jpg',         label: 'Mapp' },
-  { uri: 'https://cdn-ai.onspace.ai/onspace/files/BPeocBPVMDVLzkz3vNccyX/ipad_06_me.jpg',           label: 'Me' },
+  { src: require('@/assets/images/screens/ipad_01_dashboard.jpg'),  label: 'Dashboard' },
+  { src: require('@/assets/images/screens/ipad_02_log.jpg'),         label: "Today's Log" },
+  { src: require('@/assets/images/screens/ipad_03_patterns.jpg'),    label: 'Patterns' },
+  { src: require('@/assets/images/screens/ipad_04_moodlab.jpg'),     label: 'Mood Lab' },
+  { src: require('@/assets/images/screens/ipad_05_mapp.jpg'),         label: 'Mapp' },
+  { src: require('@/assets/images/screens/ipad_06_me.jpg'),           label: 'Me' },
 ];
 
 const TESTIMONIALS = [
@@ -610,7 +610,7 @@ export default function LandingScreen() {
                     <Text style={st.browserUrlText}>mymoodmapp.com</Text>
                   </View>
                 </View>
-                <Image source={{ uri: sc.uri }} style={{ width: '100%', aspectRatio: 16 / 9 }} contentFit="cover" transition={250} />
+                <Image source={sc.src} style={{ width: '100%', aspectRatio: 16 / 9 }} contentFit="cover" transition={250} />
                 <View style={st.thumbFooter}>
                   <Text style={st.thumbLabel}>{sc.label}</Text>
                 </View>
@@ -625,7 +625,7 @@ export default function LandingScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: pad, gap: isMobile ? 10 : 14, paddingBottom: 40 }}>
             {PHONE_SHOTS.map((sc, i) => (
               <View key={i} style={[st.phoneThumb, { width: phoneW, borderRadius: isMobile ? 16 : 22 }]}>
-                <Image source={{ uri: sc.uri }} style={{ width: '100%', aspectRatio: 9 / 16 }} contentFit="cover" contentPosition="top" transition={200} />
+                <Image source={sc.src} style={{ width: '100%', aspectRatio: 9 / 16 }} contentFit="cover" contentPosition="top" transition={200} />
                 <View style={[st.thumbFooter, { borderTopWidth: 1, borderTopColor: C.border }]}>
                   <Text style={[st.thumbLabel, isMobile && { fontSize: 11 }]}>{sc.label}</Text>
                   <Text style={[st.thumbSub, isMobile && { fontSize: 9 }]}>{sc.theme}</Text>
@@ -690,7 +690,7 @@ export default function LandingScreen() {
               </View>
             </View>
             <View style={[st.spotPhone, isMobile && { width: Math.min(w - pad * 2, 200) }]}>
-              <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/j8V63eSB83yCWuCTxCaoHQ/dark_04_moodlab.jpg' }} style={{ width: '100%', aspectRatio: 9 / 16 }} contentFit="cover" contentPosition="top" transition={300} />
+              <Image source={require('@/assets/images/screens/dark_04_moodlab.jpg')} style={{ width: '100%', aspectRatio: 9 / 16 }} contentFit="cover" contentPosition="top" transition={300} />
             </View>
           </View>
         </View>
@@ -718,7 +718,7 @@ export default function LandingScreen() {
               </View>
             </View>
             <View style={[st.spotPhone, isMobile && { width: Math.min(w - pad * 2, 200) }]}>
-              <Image source={{ uri: 'https://cdn-ai.onspace.ai/onspace/files/DB3YfdGqKwFTxrBSfaGMLH/dark_05_mapp.jpg' }} style={{ width: '100%', aspectRatio: 9 / 16 }} contentFit="cover" contentPosition="top" transition={300} />
+              <Image source={require('@/assets/images/screens/dark_05_mapp.jpg')} style={{ width: '100%', aspectRatio: 9 / 16 }} contentFit="cover" contentPosition="top" transition={300} />
             </View>
           </View>
         </View>
