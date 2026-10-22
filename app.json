@@ -88,7 +88,7 @@
       [
         "@stripe/stripe-react-native",
         {
-          "merchantIdentifier": "merchant.com.dkoravos.mymoodmapp",
+          "merchantIdentifier": "merchant.com.kairosdigitallabs.mymoodmapp",
           "enableGooglePay": false
         }
       ],
@@ -99,10 +99,10 @@
     "experiments": {
       "typedRoutes": false
     },
-    "owner": "dkoravos",
+    "owner": "koravos",
     "extra": {
       "eas": {
-        "projectId": "90d86c2d-0355-4caf-b8d6-a4619b41ebde"
+        "projectId": "ca013036-6cb5-481b-8726-dba9ce88dde1"
       }
     }
   }

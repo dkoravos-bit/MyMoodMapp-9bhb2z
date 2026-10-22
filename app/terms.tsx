@@ -107,7 +107,7 @@ export default function TermsScreen() {
         <View style={[s.content, { width: maxW }]}>
 
           <Section num="1" title="Acceptance of Terms">
-            <Body>By downloading, installing, or using MyMoodMapp ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the App.</Body>
+            <Body>MyMoodMapp ("the App") is provided by Kairos Digital Labs LLC ("we", "us"). By downloading, installing, or using the App, you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the App.</Body>
             <Body>These Terms constitute a legally binding agreement between you and MyMoodMapp. We may update these Terms from time to time. Continued use after changes constitutes acceptance of the updated Terms.</Body>
           </Section>
 
@@ -180,7 +180,7 @@ export default function TermsScreen() {
           </Section>
 
           <Section num="7" title="Intellectual Property">
-            <Body>All content, features, and functionality of the App — including text, graphics, logos, icons, AI models, and software code — are owned by MyMoodMapp or its licensors and are protected by copyright, trademark, and other intellectual property laws.</Body>
+            <Body>All content, features, and functionality of the App — including text, graphics, logos, icons, AI models, and software code — are owned by Kairos Digital Labs LLC or its licensors and are protected by copyright, trademark, and other intellectual property laws.</Body>
             <Body>You are granted a limited, non-exclusive, non-transferable license to use the App for personal, non-commercial purposes. This license does not include the right to sublicense, sell, resell, transfer, or exploit any portion of the App.</Body>
             <Body>You retain ownership of all content you submit to the App (mood logs, journal entries, etc.). By submitting content, you grant us a limited license to store, process, and display that content solely to provide the App's features to you.</Body>
           </Section>
@@ -247,7 +247,7 @@ export default function TermsScreen() {
 
         {/* Footer */}
         <View style={[s.footer, { width: '100%' }]}>
-          <Text style={s.footerCopy}>© {new Date().getFullYear()} MyMoodMapp. All rights reserved.</Text>
+          <Text style={s.footerCopy}>© {new Date().getFullYear()} Kairos Digital Labs LLC. All rights reserved.</Text>
           <Text style={s.footerCopy}>Terms of Service · Effective {EFFECTIVE_DATE}</Text>
           <Pressable
             onPress={() => router.push('/privacy' as any)}

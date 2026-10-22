@@ -966,7 +966,7 @@ export default function LandingScreen() {
             </View>
           </View>
           <View style={[st.footerBottom, { maxWidth: maxW, width: '100%', alignSelf: 'center' }]}>
-            <Text style={st.footerCopy}>© {new Date().getFullYear()} MyMoodMapp. All rights reserved.</Text>
+            <Text style={st.footerCopy}>© {new Date().getFullYear()} Kairos Digital Labs LLC. All rights reserved.</Text>
           </View>
         </View>
 

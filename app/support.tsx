@@ -189,7 +189,7 @@ export default function SupportScreen() {
           {APP_NAME} · {SUPPORT_EMAIL}
         </Text>
         <Text style={[s.footer, { color: C.textMuted, marginTop: 2 }]}>
-          © {new Date().getFullYear()} MyMoodMapp. All rights reserved.
+          © {new Date().getFullYear()} Kairos Digital Labs LLC. All rights reserved.
         </Text>
 
       </ScrollView>

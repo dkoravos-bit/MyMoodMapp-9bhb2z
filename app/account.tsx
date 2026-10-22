@@ -635,7 +635,7 @@ export default function AccountScreen() {
             <Text style={{ fontSize: 11, color: C.textMuted, textDecorationLine: 'underline', includeFontPadding: false }}>Support</Text>
           </Pressable>
         </View>
-        <Text style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', marginBottom: Spacing.md, includeFontPadding: false }}>© {new Date().getFullYear()} MyMoodMapp. All rights reserved.</Text>
+        <Text style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', marginBottom: Spacing.md, includeFontPadding: false }}>© {new Date().getFullYear()} Kairos Digital Labs LLC. All rights reserved.</Text>
 
       </ScrollView>
     </SafeAreaView>

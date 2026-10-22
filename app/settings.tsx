@@ -107,6 +107,8 @@ export default function Settings() {
         <Divider />
         <Item label="Sign out" onPress={async () => { await logout(); }} right={<View />} />
       </Card>
+
+      <Small color={C.faint} style={{ textAlign: 'center' }}>MyMoodMapp by Kairos Digital Labs LLC</Small>
     </Screen>
   );
 }

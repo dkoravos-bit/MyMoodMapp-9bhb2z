@@ -172,7 +172,7 @@ export default function PrivacyScreen() {
 
           <PolicySection num={1} title="Introduction">
             <BodyText>
-              MyMoodMapp ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use the MyMoodMapp mobile application, web application, and related services (collectively, the "App").
+              MyMoodMapp is operated by Kairos Digital Labs LLC ("Kairos Digital Labs", "we", "our", or "us"), which is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use the MyMoodMapp mobile application, web application, and related services (collectively, the "App").
             </BodyText>
             <BodyText>
               We built MyMoodMapp on a simple principle: your mental health data is deeply personal and belongs to you. We will never sell it, advertise with it, or share it without your explicit consent.
@@ -465,7 +465,7 @@ export default function PrivacyScreen() {
             </Pressable>
           </View>
           <Text style={[s.footerLegal, { width: Math.min(w, 900) }]}>
-            © {new Date().getFullYear()} MyMoodMapp. All rights reserved.
+            © {new Date().getFullYear()} Kairos Digital Labs LLC. All rights reserved.
           </Text>
         </View>
 
