@@ -94,7 +94,13 @@
       ],
       "expo-secure-store",
       "expo-web-browser",
-      "expo-audio"
+      "expo-audio",
+      [
+        "./plugins/withPodDeploymentTarget",
+        {
+          "target": "15.1"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false
