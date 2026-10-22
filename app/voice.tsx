@@ -15,6 +15,7 @@ import { CONTEXT_TAGS } from '@/constants/moodlog';
 import { callEdge } from '@/lib/edge';
 import { buildMoodLogEntry, saveMoodLogEntry } from '@/services/moodlog';
 import { publishGlow } from '@/lib/circle';
+import { writeMoodToHealth } from '@/services/fitness';
 import { honestScore, latestEntry } from '@/lib/insight';
 
 type Parsed = { mind: number; energy: number; body: number; focus: number; tags: string[]; note: string; crisis?: boolean };
@@ -79,6 +80,7 @@ export default function Voice() {
     entry.score = honestScore(d);
     entry.transcript = transcript;
     const list = await saveMoodLogEntry(entry);
+    writeMoodToHealth(entry);
     setMoodLogEntries(list);
     { const t = list.filter(e => e.date === entry.date); publishGlow(Math.round(t.reduce((s, e) => s + e.score, 0) / t.length)); }
     router.replace({ pathname: '/reveal', params: { prev: prev ? String(prev.score) : '' } });

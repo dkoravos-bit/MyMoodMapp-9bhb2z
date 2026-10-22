@@ -21,6 +21,7 @@ import {
   fetchCloudFitnessData,
   DailyFitnessEntry,
   FitnessPermissionStatus,
+  refreshHealthIfConnected,
 } from '@/services/fitness';
 import { getCachedWeather, WeatherData } from '@/services/weather';
 import { getUserProfile, fetchCloudMoodEntries, fetchIntakeSummaryFromCloud, syncAllMoodEntriesToCloud } from '@/services/sync';
@@ -87,7 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [vibeCardUrl, setVibeCardUrl] = useState<string | null>(null);
   const [selfieUri, setSelfieUri] = useState<string | null>(null);
   const [fitnessData, setFitnessData] = useState<DailyFitnessEntry[]>([]);
-  const [fitnessPermission, setFitnessPermission] = useState<FitnessPermissionStatus>({ granted: false, source: 'mock' });
+  const [fitnessPermission, setFitnessPermission] = useState<FitnessPermissionStatus>({ granted: false, source: 'none' });
   const [birthdate, setBirthdate] = useState<string | null>(null);
   const [moodLogEntries, setMoodLogEntries] = useState<MoodLogEntry[]>([]);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
@@ -158,7 +159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e: any) {
       console.warn('[AppContext] local storage load error:', e?.message);
       // Provide safe defaults so the rest of the function can continue
-      localData = [null, [], null, { current: 0, longest: 0, lastDate: '' }, false, false, null, null, [], { granted: false, source: 'mock' }, null, [], null];
+      localData = [null, [], null, { current: 0, longest: 0, lastDate: '' }, false, false, null, null, [], { granted: false, source: 'none' }, null, [], null];
     }
 
     const [
@@ -176,7 +177,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try { setVibeCardUrl(cardUrl); } catch {}
     try { setSelfieUri(selfie); } catch {}
     try { setFitnessData(fitness ?? []); } catch {}
-    try { setFitnessPermission(fitnessStatus ?? { granted: false, source: 'mock' }); } catch {}
+    try { setFitnessPermission(fitnessStatus ?? { granted: false, source: 'none' }); } catch {}
+    // Re-read Apple Health / Health Connect in the background if the user connected it.
+    if (Platform.OS !== 'web') refreshHealthIfConnected(60).then(rows => { if (rows) setFitnessData(rows); }).catch(() => {});
     try { setBirthdate(bd); } catch {}
     try { setMoodLogEntries(localMoodEntries ?? []); } catch {}
     try { if (weather) setWeatherData(weather); } catch {}
@@ -213,7 +216,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         fetchCloudFitnessData(user.id, 30).then(cloudFitness => {
           if (cloudFitness.length > 0) {
             setFitnessData(cloudFitness);
-            setFitnessPermission({ granted: true, source: 'expo_health' });
+            setFitnessPermission({ granted: true, source: 'cloud' });
           }
         }).catch(() => {});
       }

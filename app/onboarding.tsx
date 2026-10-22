@@ -11,7 +11,7 @@ import { useApp } from '@/hooks/useApp';
 import { C, R, S, T } from '@/ui/tokens';
 import { Body, BodySemi, Small, Eyebrow, Button, Card, Row, tap } from '@/ui/primitives';
 import { markOnboardingDone } from '@/services/storage';
-import { requestFitnessPermissions, fetchFitnessDataAndSync } from '@/services/fitness';
+import { requestFitnessPermissions, fetchFitnessDataAndSync, healthMoodWriteSupported, setMoodWriteEnabled } from '@/services/fitness';
 import { fetchWeather } from '@/services/weather';
 import { MoodPrint } from '@/art/MoodPrint';
 import { fmtHours } from '@/lib/insight';
@@ -24,16 +24,18 @@ export default function Onboarding() {
   const [health, setHealth] = useState<'idle' | 'busy' | 'on' | 'off'>('idle');
   const [weather, setWeather] = useState<'idle' | 'busy' | 'on' | 'off'>('idle');
   const [insight, setInsight] = useState<string | null>(null);
+  const [writeAsk, setWriteAsk] = useState<'hidden' | 'ask' | 'on' | 'off'>('hidden');
 
   const connectHealth = async () => {
     setHealth('busy');
     try {
       const perm = await requestFitnessPermissions();
       setFitnessPermission(perm);
-      if (!perm.granted || perm.source === 'mock') { setHealth('off'); return; }
+      if (!perm.granted) { setHealth('off'); return; }
       const data = await fetchFitnessDataAndSync(60);
       setFitnessData(data);
       setHealth('on');
+      if (healthMoodWriteSupported()) setWriteAsk('ask');
       const sleeps = data.map(d => d.sleepHours).filter((x): x is number => !!x);
       const steps = data.map(d => d.steps).filter(Boolean);
       if (sleeps.length >= 5) setInsight(`You've averaged ${fmtHours(sleeps.reduce((a, b) => a + b, 0) / sleeps.length)} of sleep over ${sleeps.length} nights. Once you log a few days, we'll show exactly how sleep moves your mood.`);
@@ -81,7 +83,7 @@ export default function Onboarding() {
             <Card style={{ flexDirection: 'row', alignItems: 'center', gap: S.md }}>
               <View style={{ flex: 1, gap: 2 }}>
                 <BodySemi>{Platform.OS === 'android' ? 'Health Connect' : Platform.OS === 'ios' ? 'Apple Health' : 'Health data'}</BodySemi>
-                <Small color={C.muted}>{Platform.OS === 'web' ? 'Available in the iPhone and Android apps' : 'Sleep, steps, heart rate'}</Small>
+                <Small color={C.muted}>{Platform.OS === 'web' ? 'Available in the iPhone and Android apps' : health === 'off' ? 'Not connected — you can connect later in Settings' : 'Sleep, workouts, heart rate, HRV'}</Small>
               </View>
               {Platform.OS === 'web' ? <Small color={C.faint}>App only</Small> : <Button label={health === 'on' ? '✓' : 'Connect'} kind="ghost" onPress={connectHealth} disabled={health === 'busy' || health === 'on'} style={{ height: 40, paddingHorizontal: 14 }} />}
             </Card>
@@ -93,6 +95,16 @@ export default function Onboarding() {
               {weather === 'on' ? <Status s="on" /> : <Button label="Connect" kind="ghost" onPress={connectWeather} disabled={weather === 'busy'} style={{ height: 40, paddingHorizontal: 14 }} />}
             </Card>
           </View>
+          {writeAsk === 'ask' ? (
+            <Card style={{ gap: S.sm }}>
+              <BodySemi>Also save your moods to Apple Health?</BodySemi>
+              <Small color={C.muted}>Each mood you log appears in the Health app as a State of Mind entry, next to Apple's own check-ins. You can turn this off anytime in Settings.</Small>
+              <Row>
+                <Button label="Save my moods" kind="ghost" onPress={async () => setWriteAsk((await setMoodWriteEnabled(true)) ? 'on' : 'off')} style={{ height: 40, paddingHorizontal: 14 }} />
+                <Button label="Not now" kind="quiet" onPress={() => setWriteAsk('off')} style={{ height: 40, paddingHorizontal: 14 }} />
+              </Row>
+            </Card>
+          ) : writeAsk === 'on' ? <Small color={C.mindInk}>Your moods will be saved to Apple Health.</Small> : null}
           {insight ? (
             <View style={{ borderRadius: R.xl, padding: S.xl, backgroundColor: '#121426', borderWidth: 1, borderColor: C.lineStrong, gap: S.sm }}>
               <Eyebrow color={C.mindInk}>Already learning</Eyebrow>

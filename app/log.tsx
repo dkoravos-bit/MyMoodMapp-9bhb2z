@@ -14,6 +14,7 @@ import { Compass } from '@/art/Compass';
 import { CONTEXT_TAGS, getScoreLabel } from '@/constants/moodlog';
 import { buildMoodLogEntry, saveMoodLogEntry } from '@/services/moodlog';
 import { publishGlow } from '@/lib/circle';
+import { writeMoodToHealth } from '@/services/fitness';
 import { dims01, honestScore, latestEntry, forgivingStreak } from '@/lib/insight';
 
 /** The quick set shown first — the tags people use most. */
@@ -50,6 +51,7 @@ export default function LogScreen() {
       );
       entry.score = score; // honest score: the four dimensions only
       const list = await saveMoodLogEntry(entry);
+      writeMoodToHealth(entry);
       setMoodLogEntries(list);
       { const t = list.filter(e => e.date === entry.date); publishGlow(Math.round(t.reduce((s, e) => s + e.score, 0) / t.length)); }
       tap('success');

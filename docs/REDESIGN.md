@@ -15,6 +15,16 @@
 - `generate-mood-art` v9, `transcribe-voice` v9, `parse-voice-log` v1 deployed (each bundle includes `_shared/http.ts`, `_shared/cors.ts`; the art function also `_shared/moodArtSpec.ts`). All three return 401 without a session.
 - Still needed: a new native **build** on iOS and Android (also needed for the bundle ID / subscription changes on `onspace-migration`), then a signed-in device test of art generation and voice.
 
+## Health data (Oct 22, 2026)
+- `services/fitness.ios.ts` = Apple Health via `@kingstinct/react-native-healthkit` 16.2 (Nitro). Reads sleep (asleep stages only, iPhone+Watch overlaps merged, credited to wake day), steps, exercise minutes, workouts, active energy, resting/avg HR, HRV (SDNN), mindful minutes, time in daylight (iOS 17+). Writes each log as a **State of Mind** sample (iOS 18+), only when "Save moods to Apple Health" is on (asked once after connecting in onboarding; toggle in Settings). Tags → Apple labels/associations in `TAG_LABELS` / `TAG_ASSOC`.
+- `services/fitness.android.ts` = Health Connect via `react-native-health-connect` 4.1.3 (minSdk 26 via `expo-build-properties`). Reads sleep stages, steps, active calories, exercise sessions, resting/avg HR, HRV (RMSSD). No write — Health Connect has no mood type.
+- `services/fitness.ts` = web: reads what the phone synced to `fitness_data`. Shared code in `services/fitnessShared.ts`.
+- **No mock data anywhere.** The old app silently generated sample data when Health wasn't connected; the new cache keys (`health_*_v2`) ignore those old caches. HealthKit can't say whether read access was granted, so "connected" means "asked"; empty days show as empty.
+- HealthKit crashes if a type is queried before `requestAuthorization`, so every read goes through `ensureAuthorized()`.
+- Drivers now include workouts, 30+ min daylight, mindful minutes and higher-than-usual HRV (`healthDriver` in `lib/insight.ts`), only on days that actually have that signal.
+- Migration `20261022010000_fitness_health_signals.sql` adds `hrv_ms`, `mindful_minutes`, `daylight_minutes`, `workouts` to `fitness_data` — must be applied before cloud sync works.
+- Before this, the repo never contained a Health library: OnSpace's build server injected `react-native-health` at build time.
+
 ## Platform parity — needs device testing
 - Slider: native uses `@react-native-community/slider`; web uses `<input type=range>` (`ui/Slider.tsx`).
 - Mood Print glow (SVG blur) is skipped on Android; arcs stay crisp.

@@ -141,17 +141,26 @@ export function computeDrivers(entries: MoodLogEntry[], fitness: DailyFitnessEnt
     out.push({ key: `tag:${id}`, name: tag.label, group: TAG_GROUP(tag.category), effect: Math.round(diff), withDays: w.length, withoutDays: wo.length, confidence: confidenceOf(t, w.length, wo.length), note: `Days you tagged “${tag.label}” vs days you didn't` });
   }
 
+  // Health drivers: compare your mood on days a health signal was "on" vs "off".
+  // Only days that actually have that signal count — missing data is never treated as zero.
   const fit = new Map(fitness.map(f => [f.date, f]));
-  const sleepPairs = days.map(d => ({ d, s: fit.get(d.date)?.sleepHours ?? null })).filter(x => x.s != null) as { d: Day; s: number }[];
-  if (sleepPairs.length >= 6) {
-    const w = sleepPairs.filter(x => x.s >= 7).map(x => x.d.avg); const wo = sleepPairs.filter(x => x.s < 7).map(x => x.d.avg);
-    if (w.length >= 3 && wo.length >= 3) { const { diff, t } = welch(w, wo); out.push({ key: 'sleep7', name: '7+ hours of sleep', group: 'body', effect: Math.round(diff), withDays: w.length, withoutDays: wo.length, confidence: confidenceOf(t, w.length, wo.length), note: 'From your sleep data, the night before' }); }
-  }
-  const stepPairs = days.map(d => ({ d, s: fit.get(d.date)?.steps ?? null })).filter(x => x.s != null && x.s > 0) as { d: Day; s: number }[];
-  if (stepPairs.length >= 6) {
-    const w = stepPairs.filter(x => x.s >= 7000).map(x => x.d.avg); const wo = stepPairs.filter(x => x.s < 7000).map(x => x.d.avg);
-    if (w.length >= 3 && wo.length >= 3) { const { diff, t } = welch(w, wo); out.push({ key: 'steps7k', name: '7,000+ steps', group: 'body', effect: Math.round(diff), withDays: w.length, withoutDays: wo.length, confidence: confidenceOf(t, w.length, wo.length), note: 'From your step count that day' }); }
-  }
+  const healthDriver = (key: string, name: string, note: string, value: (f: DailyFitnessEntry) => number | null | undefined, on: (v: number, all: number[]) => boolean) => {
+    const pairs = days.map(d => { const f = fit.get(d.date); const v = f ? value(f) : null; return { d, v }; }).filter(x => x.v != null) as { d: Day; v: number }[];
+    if (pairs.length < 6) return;
+    const all = pairs.map(x => x.v);
+    const w = pairs.filter(x => on(x.v, all)).map(x => x.d.avg); const wo = pairs.filter(x => !on(x.v, all)).map(x => x.d.avg);
+    if (w.length < 3 || wo.length < 3) return;
+    const { diff, t } = welch(w, wo);
+    out.push({ key, name, group: 'body', effect: Math.round(diff), withDays: w.length, withoutDays: wo.length, confidence: confidenceOf(t, w.length, wo.length), note });
+  };
+  const median = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+  const synced = (f: DailyFitnessEntry) => f.steps > 0 || f.sleepHours != null || f.restingHeartRate != null || f.hrvMs != null || f.workoutMinutes > 0;
+  healthDriver('sleep7', '7+ hours of sleep', 'From your sleep data, the night before', f => f.sleepHours, v => v >= 7);
+  healthDriver('steps7k', '7,000+ steps', 'From your step count that day', f => (f.steps > 0 ? f.steps : null), v => v >= 7000);
+  healthDriver('workout', 'A workout (20+ min)', 'Days with a logged workout vs days without', f => (synced(f) ? f.workoutMinutes : null), v => v >= 20);
+  healthDriver('daylight30', '30+ min in daylight', 'Time in daylight, measured by your Apple Watch', f => f.daylightMinutes, v => v >= 30);
+  healthDriver('mindful', 'Mindful minutes', 'Days with a mindfulness session vs days without', f => (synced(f) ? (f.mindfulMinutes ?? 0) : null), v => v > 0);
+  healthDriver('hrvHigh', 'Higher HRV than usual', 'Heart rate variability above your own typical level — a recovery signal', f => f.hrvMs, (v, all) => v > median(all));
 
   // Weekends
   const we = days.filter(d => [0, 6].includes(weekday(d.date))).map(d => d.avg);
@@ -268,9 +277,9 @@ const avgOf = (xs: (number | null | undefined)[]) => { const v = xs.filter((x): 
 
 export const SCALE_INDEX = (score: number) => score < 50 ? 0 : score < 60 ? 1 : score < 67 ? 2 : score < 76 ? 3 : 4;
 
-// ── Real health data only (the web/fallback fitness service returns mock data) ──
+// ── Health data only when the user connected it (there is no sample/mock data) ──
 import { useApp } from '@/hooks/useApp';
 export function useRealFitness(): DailyFitnessEntry[] {
   const { fitnessData, fitnessPermission } = useApp();
-  return fitnessPermission?.granted && fitnessPermission.source !== 'mock' ? fitnessData : [];
+  return fitnessPermission?.granted ? fitnessData : [];
 }

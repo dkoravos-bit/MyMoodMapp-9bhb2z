@@ -22,8 +22,8 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSMicrophoneUsageDescription": "MyMoodMapp uses the microphone to record voice journal entries in your mood logs and for audio playback features in Mood Lab.",
         "NSPhotoLibraryAddUsageDescription": "MyMoodMapp saves your AI-generated mood art and vibe cards to your photo library.",
-        "NSHealthShareUsageDescription": "MyMoodMapp reads your health data including steps, sleep, and heart rate to correlate with your mood patterns.",
-        "NSHealthUpdateUsageDescription": "MyMoodMapp may write mood-related wellness summaries to Apple Health so your data stays in sync across your health apps.",
+        "NSHealthShareUsageDescription": "MyMoodMapp reads your sleep, workouts, steps, heart rate, heart rate variability, mindful minutes, time in daylight and State of Mind check-ins to show how they relate to your mood. Your health data is never shared with advertisers.",
+        "NSHealthUpdateUsageDescription": "If you turn it on, MyMoodMapp saves the moods you log to Apple Health as State of Mind entries.",
         "NSLocationWhenInUseUsageDescription": "MyMoodMapp uses your approximate location to show local weather and correlate it with your mood.",
         "NSCameraUsageDescription": "MyMoodMapp uses the camera to capture photos for your mood journal entries.",
         "NSPhotoLibraryUsageDescription": "MyMoodMapp can save your mood art to your photo library.",
@@ -53,7 +53,14 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_SLEEP",
+        "android.permission.health.READ_EXERCISE",
+        "android.permission.health.READ_HEART_RATE",
+        "android.permission.health.READ_RESTING_HEART_RATE",
+        "android.permission.health.READ_HEART_RATE_VARIABILITY",
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED"
       ]
     },
     "web": {
@@ -99,6 +106,23 @@
         "./plugins/withPodDeploymentTarget",
         {
           "target": "15.1"
+        }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "MyMoodMapp reads your sleep, workouts, steps, heart rate, heart rate variability, mindful minutes, time in daylight and State of Mind check-ins to show how they relate to your mood. Your health data is never shared with advertisers.",
+          "NSHealthUpdateUsageDescription": "If you turn it on, MyMoodMapp saves the moods you log to Apple Health as State of Mind entries.",
+          "background": false
+        }
+      ],
+      "react-native-health-connect",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "minSdkVersion": 26
+          }
         }
       ]
     ],

@@ -11,7 +11,7 @@ import { C, R, S } from '@/ui/tokens';
 import { Screen, Row, IconButton, H1, Body, BodySemi, Small, Card, Divider, Eyebrow, Chip, tap } from '@/ui/primitives';
 import { useTone } from '@/lib/useMoodArt';
 import { exportMoodCSV } from '@/services/exportReport';
-import { requestFitnessPermissions, fetchFitnessDataAndSync } from '@/services/fitness';
+import { requestFitnessPermissions, fetchFitnessDataAndSync, healthMoodWriteSupported, getMoodWriteEnabled, setMoodWriteEnabled } from '@/services/fitness';
 import { NotificationScheduler } from '@/components/feature/NotificationScheduler';
 
 function Item({ label, hint, onPress, right }: { label: string; hint?: string; onPress?: () => void; right?: React.ReactNode }) {
@@ -31,6 +31,9 @@ export default function Settings() {
   const { tone, setTone } = useTone();
   const [shareGlow, setShareGlow] = useState(true);
   const [showNotif, setShowNotif] = useState(false);
+  const [healthBusy, setHealthBusy] = useState(false);
+  const [writeMoods, setWriteMoods] = useState(false);
+  useEffect(() => { getMoodWriteEnabled().then(setWriteMoods); }, []);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -42,9 +45,18 @@ export default function Settings() {
     if (user?.id) await getSupabaseClient().from('user_profiles').update({ share_glow: v, ...(v ? {} : { glow: null }) }).eq('id', user.id);
   };
   const connectHealth = async () => {
-    const perm = await requestFitnessPermissions(); setFitnessPermission(perm);
-    if (perm.granted) setFitnessData(await fetchFitnessDataAndSync(60));
+    setHealthBusy(true);
+    try {
+      const perm = await requestFitnessPermissions(); setFitnessPermission(perm);
+      if (perm.granted) setFitnessData(await fetchFitnessDataAndSync(60));
+    } finally { setHealthBusy(false); }
   };
+  const toggleWriteMoods = async (v: boolean) => { setWriteMoods(v); setWriteMoods(await setMoodWriteEnabled(v)); };
+  const healthName = Platform.OS === 'ios' ? 'Apple Health' : 'Health Connect';
+  const healthHint = healthBusy ? 'Connecting…'
+    : fitnessPermission.granted ? 'Connected — sleep, workouts, heart rate, HRV. Tap to refresh.'
+    : fitnessPermission.unavailable ? (Platform.OS === 'android' ? 'Install Health Connect from the Play Store to connect' : 'Not available on this device')
+    : 'Sleep, workouts, heart rate and HRV';
 
   return (
     <Screen contentStyle={{ paddingBottom: 60 }}>
@@ -71,7 +83,8 @@ export default function Settings() {
 
       <Eyebrow>Your data</Eyebrow>
       <Card style={{ paddingVertical: S.xs }}>
-        {Platform.OS !== 'web' ? <><Item label={Platform.OS === 'ios' ? 'Apple Health' : 'Health Connect'} hint={fitnessPermission.granted && fitnessPermission.source !== 'mock' ? 'Connected' : 'Sleep, steps and heart rate'} onPress={connectHealth} /><Divider /></> : null}
+        {Platform.OS !== 'web' ? <><Item label={healthName} hint={healthHint} onPress={connectHealth} /><Divider /></> : null}
+        {Platform.OS === 'ios' && fitnessPermission.granted && healthMoodWriteSupported() ? <><Item label="Save moods to Apple Health" hint="Each log becomes a State of Mind entry in the Health app" right={<Switch value={writeMoods} onValueChange={toggleWriteMoods} trackColor={{ true: C.mind, false: C.surface2 }} accessibilityLabel="Save moods to Apple Health" />} /><Divider /></> : null}
         <Item label="Temperature" right={<Row>{(['C', 'F'] as const).map(u => <Chip key={u} label={`°${u}`} on={tempUnit === u} onPress={() => setTempUnit(u)} />)}</Row>} />
         <Divider />
         <Item label="Cycle tracking" hint="See how your cycle lines up with your mood" onPress={() => router.push('/cycle-tracker')} />
