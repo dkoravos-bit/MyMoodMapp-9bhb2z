@@ -25,6 +25,11 @@ module.exports = function withPodDeploymentTarget(config, { target = '15.1' } = 
       bc.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios if cur.nil? || Gem::Version.new(cur) < Gem::Version.new(min_ios)
     end
     installer.pods_project.targets.each { |t| t.build_configurations.each(&bump) }
+    # fmt 11 (RN 0.79) hits "call to consteval function is not a constant expression" on newer Xcode clang; build it as C++17.
+    installer.pods_project.targets.each do |t|
+      next unless t.name == 'fmt'
+      t.build_configurations.each { |bc| bc.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17' }
+    end
     installer.target_installation_results.pod_target_installation_results.each do |_, r|
       r.resource_bundle_targets.each { |t| t.build_configurations.each(&bump) }
     end

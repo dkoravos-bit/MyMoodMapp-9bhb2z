@@ -1,0 +1,14 @@
+# pnpm settings live here (pnpm 11+ ignores the "pnpm" field in package.json).
+overrides:
+  # 7.1.35 is newer than the minimum-release-age policy allows.
+  '@types/react-redux': 7.1.34
+
+patchedDependencies:
+  # Xcode 27: header said NSUInteger, Stripe iOS SDK declares STPPaymentStatus as Int (NSInteger).
+  '@stripe/stripe-react-native@0.45.0': patches/@stripe__stripe-react-native@0.45.0.patch
+
+# Install scripts these packages don't need for the app build.
+allowBuilds:
+  protobufjs: false
+  react-native-elements: false
+  unrs-resolver: false
